@@ -103,7 +103,7 @@ class _Adafruit_GFX : public Print {
   virtual void drawPixel(int16_t x,int16_t y,uint16_t color)=0;
 
   //-----TRANSACTION API / CORE DRAW API------------------------
-  // MAY be overwritten by subclass to provide device-specific
+  // MAY be overridden by subclass to provide device-specific
   // optimized code. Otherwise 'generic' versions are used.
   virtual void startWrite(void);
   virtual void writePixel(int16_t x, int16_t y, uint16_t color);
