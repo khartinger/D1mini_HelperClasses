@@ -570,8 +570,8 @@ byte DS1307::read1reg(byte reg)
  if(Wire.requestFrom(i2cAddress, 1)<1)
   { status_=DS1307_ERR_NO_BYTE; return 0; }
  byte reg0=Wire.read();
- status_=Wire.endTransmission();
- if(status_!=DS1307_OK) return 0;
+ //status_=Wire.endTransmission();
+ //if(status_!=DS1307_OK) return 0;
  return reg0;
 }
 
@@ -639,8 +639,8 @@ String DS1307::readDate() {
  byte reg4=Wire.read();
  byte reg5=Wire.read();
  byte reg6=Wire.read();
- status_=Wire.endTransmission();
- if(status_!=DS1307_OK) return s1;
+ //status_=Wire.endTransmission();
+ //if(status_!=DS1307_OK) return s1;
  //-----build answer--------------------------------------------
  ww_=reg3-1;
  dd_=bcd2byte((reg4&0x3F));
@@ -664,8 +664,8 @@ String DS1307::readTime() {
  SS_=bcd2byte(Wire.read());
  MM_=bcd2byte(Wire.read());
  HH_=bcd2byte((Wire.read()) &0x3F);
- status_=Wire.endTransmission();
- if(status_!=DS1307_OK) return s1;
+ //status_=Wire.endTransmission();
+ //if(status_!=DS1307_OK) return s1;
  return time2string(HH_,MM_,SS_);
 }
 
