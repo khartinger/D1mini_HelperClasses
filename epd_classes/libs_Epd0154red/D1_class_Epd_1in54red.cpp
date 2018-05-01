@@ -26,8 +26,8 @@
  */
 
 #include <stdlib.h>
-#include "D1_class_Epd_1in54red.h"
-
+//#include "epd1in54.h"                     // NEW 180401
+#include "D1_class_Epd_1in54red.h"          // NEW 180401
 Epd_::~Epd_() {
 };
 
@@ -45,6 +45,9 @@ Epd_::Epd_(EpdConnection &connection) {
     conn = &connection;
 };
 
+//***** NEW 180401 *********************************************
+//_____init display_____________________________________________
+// return: true=success, false=error
 bool Epd_::init(void) {                     // NEW 180411
     /* EPD hardware init start */
     Reset();
@@ -81,6 +84,67 @@ bool Epd_::init(void) {                     // NEW 180411
     return true;
 }
 
+bool Epd_::reset() { return conn->resetDisplay(); }
+
+bool Epd_::isBusy() { return conn->isBusy(); }
+
+void Epd_::sleep(void) {
+ Sleep();
+}
+
+void Epd_::wakeup(void) {
+ init();
+}
+
+void Epd_::display(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red) {
+ DisplayFrame(frame_buffer_black, frame_buffer_red);
+}
+
+void Epd_::displayNoWait(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red) {
+ DisplayFrameNoWait(frame_buffer_black, frame_buffer_red);
+}
+
+void Epd_::DisplayFrameNoWait(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red) {
+ unsigned char temp;
+ if (frame_buffer_black != NULL) {
+  SendCommand(DATA_START_TRANSMISSION_1);
+  delay(2);
+  for (int i = 0; i < this->width * this->height / 8; i++) {
+   temp = 0x00;
+   for (int bit = 0; bit < 4; bit++) {
+//if ((pgm_read_byte(&frame_buffer_black[i]) & (0x80 >> bit)) != 0) {
+    if ((frame_buffer_black[i] & (0x80 >> bit)) != 0) {
+     temp |= 0xC0 >> (bit * 2);
+    }
+   }
+   SendData(temp);
+   temp = 0x00;
+   for (int bit = 4; bit < 8; bit++) {
+//if ((pgm_read_byte(&frame_buffer_black[i]) & (0x80 >> bit)) != 0) {
+    if ((frame_buffer_black[i] & (0x80 >> bit)) != 0) {
+     temp |= 0xC0 >> ((bit - 4) * 2);
+    }
+   }
+   SendData(temp);
+  }
+  delay(2);
+ }
+ if (frame_buffer_red != NULL) {
+  SendCommand(DATA_START_TRANSMISSION_2);
+  delay(2);
+  for (int i = 0; i < this->width * this->height / 8; i++) {
+   //SendData(pgm_read_byte(&frame_buffer_red[i]));
+   temp=frame_buffer_red[i];
+   SendData(temp);
+  }
+  delay(2);
+ }
+ SendCommand(DISPLAY_REFRESH);
+//WaitUntilIdle();
+}
+
+//***** NEW 180401 - END ***************************************
+
 /**
  *  @brief: basic function for sending commands
  */
@@ -109,14 +173,6 @@ void Epd_::WaitUntilIdle(void) {
  */
 void Epd_::Reset(void) {
  conn->resetDisplay();
-}
-
-void Epd_::sleep(void) {
- Sleep();
-}
-
-void Epd_::wakeup(void) {
- init();
 }
 
 /**
@@ -160,10 +216,6 @@ void Epd_::SetLutRed(void) {
     for(count = 0; count < 15; count++) {
         SendData(lut_red1[count]);
     } 
-}
-
-void Epd_::display(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red) {
-    DisplayFrame(frame_buffer_black, frame_buffer_red);
 }
 
 void Epd_::DisplayFrame(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red) {

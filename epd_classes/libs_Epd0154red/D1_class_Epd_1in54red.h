@@ -4,7 +4,7 @@
  *  @author     :   Yehui from Waveshare
  *  
  *  Copyright (C) Waveshare      August  10 2017
- *  Changes by    Karl Hartinger April   01 2018
+ *  Changes by    Karl Hartinger May     01 2018
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documnetation files (the "Software"), to deal
@@ -85,12 +85,23 @@ class Epd_ {
   Epd_();
   Epd_(EpdConnection &connection);
   ~Epd_();
-  bool init(void);                          // 
-  void display(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red);
-  void sleep();
-  void wakeup();
+  bool init(void);                          // NEW 180501
+  bool reset(void);                         // NEW 180501
+  bool isBusy(void);                        // NEW 180501
+  void sleep(void);                         // NEW 180501
+  void wakeup(void);                        // NEW 180501
+  void display(                             // NEW 180501
+       const unsigned char* frame_buffer_black,
+       const unsigned char* frame_buffer_red);
+  void displayNoWait(                       // NEW 180501
+       const unsigned char* frame_buffer_black,
+       const unsigned char* frame_buffer_red);
+ protected:
+  void DisplayFrameNoWait(                  // NEW 180501
+       const unsigned char* frame_buffer_black,
+       const unsigned char* frame_buffer_red);
 
-protected:
+ protected:
   void DisplayFrame(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red);
   void SendCommand(unsigned char command);
   void SendData(unsigned char data);

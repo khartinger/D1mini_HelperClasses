@@ -2,7 +2,7 @@
  *  @filename   :   D1_class_EpdPaint.cpp (epdpaint.cpp)
  *  @brief      :   Paint tools
  *  @author     :   Yehui from Waveshare
- *  @update     :   Christian & Karl Hartinger, April 26 2018
+ *  @update     :   Christian & Karl Hartinger, April 01 2018
  *  
  *  Copyright (C) Waveshare     September 9 2017
  *  
@@ -28,7 +28,6 @@
 
 //#include "epdpaint.h"                     // NEW 180401
 #include "D1_class_EpdPaint.h"              // NEW 180401
-#include <pgmspace.h>                       // NEW 180426
 
 EpdPaint::EpdPaint(unsigned char* image, int width, int height) {
  this->rotate = ROTATE_0;
@@ -147,17 +146,12 @@ void EpdPaint::DrawPixel(int x, int y, int colored) {
  */
 void EpdPaint::DrawCharAt(int x, int y, char ascii_char, sFONT* font, int colored) {
  int i, j;
- unsigned char byte1;
  unsigned int char_offset = (ascii_char - ' ') * font->Height * (font->Width / 8 + (font->Width % 8 ? 1 : 0));
  const unsigned char* ptr = &font->table[char_offset];
+
  for (j = 0; j < font->Height; j++) {
   for (i = 0; i < font->Width; i++) {
-#ifdef FONTS_PROGMEM                   // NEW 180426
-   if(font->ProgMem>0) byte1=pgm_read_byte(ptr);
-   else 
-#endif                                 // NEW 180426
-   byte1=*ptr;
-   if (byte1 & (0x80 >> (i % 8))) {
+   if (*ptr & (0x80 >> (i % 8))) {
     DrawPixel(x + i, y + j, colored);
    }
    if (i % 8 == 7) {
@@ -170,35 +164,26 @@ void EpdPaint::DrawCharAt(int x, int y, char ascii_char, sFONT* font, int colore
  }
 }
 
-/**
- *  @brief: this draws a double size charactor on the frame buffer but not refresh
- */
 void EpdPaint::DrawBigCharAt(int x, int y, char ascii_char, sFONT* font, int colored) {
  int i, j;
- unsigned char byte1;
  unsigned int char_offset = (ascii_char - ' ') * font->Height * (font->Width / 8 + (font->Width % 8 ? 1 : 0));
  const unsigned char* ptr = &font->table[char_offset];
  for (j = 0; j < font->Height; j++) {
   for (i = 0; i < font->Width; i++) {
-#ifdef FONTS_PROGMEM                   // NEW 180426
-   if(font->ProgMem>0) byte1=pgm_read_byte(ptr);
-   else 
-#endif                                 // NEW 180426
-   byte1=*ptr;
-   if (byte1 & (0x80 >> (i % 8)))
+   if (*ptr & (0x80 >> (i % 8))) 
    {
     DrawPixel(x + 2*i,     y + j,     colored);
     DrawPixel(x + 2*i + 1, y + j,     colored);
     DrawPixel(x + 2*i,     y + j + 1, colored);
     DrawPixel(x + 2*i + 1, y + j + 1, colored);
    }
+
    if (i % 8 == 7) { ptr++; }
   }
   if (font->Width % 8 != 0) { ptr++; }
   y++;
  }
 }
-
 
 /**
 *  @brief: this displays a string on the frame buffer but not refresh
