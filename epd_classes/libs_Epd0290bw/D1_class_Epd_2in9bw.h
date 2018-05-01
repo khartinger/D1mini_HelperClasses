@@ -2,8 +2,7 @@
  *  @filename   :   D1_class_Epd_2in9bw.h (epd2in9.h)
  *  @brief      :   Header file for e-paper display library epd2in9.cpp
  *  @author     :   Yehui from Waveshare
- *  @update     :   Christian & Karl Hartinger, April 14 2018
- *  
+ *  @update     :   Christian & Karl Hartinger, May 01 2018
  *  Copyright (C) Waveshare     September 5 2017
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -64,51 +63,57 @@ extern const unsigned char lut_partial_update[];
 
 // NEW 180401: class name changed from Epd to Epd_
 class Epd_ {
-public:
-    int width;
-    int height;
-    int colors;                             // NEW 180414
-    EpdConnection *conn;                    // NEW 180414
+ public:
+  int width;
+  int height;
+  int colors;                               // NEW 180414
+  EpdConnection *conn;                      // NEW 180414
 
-    Epd_();
-    Epd_(EpdConnection &connection);        // NEW 180414
-    ~Epd_();
-    bool init();                            // NEW 180414
-    bool reset();                           // NEW 180414
-    bool isBusy();                          // NEW 180414
-    void display(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red); // NEW 180414
-    void setFullUpdate(bool full);          // NEW 180414
-    void sleep();                           // NEW 180414
-    void wakeup();                          // NEW 180414
-
-protected:                                  // NEW 180414
+  Epd_();
+  Epd_(EpdConnection &connection);          // NEW 180414
+  ~Epd_();
+  bool init();                              // NEW 180414
+  bool reset();                             // NEW 180414
+  bool isBusy();                            // NEW 180414
+  void setFullUpdate(bool full);            // NEW 180414
+  void sleep();                             // NEW 180414
+  void wakeup();                            // NEW 180414
+  void display(                             // NEW 180414
+       const unsigned char* frame_buffer_black,
+       const unsigned char* frame_buffer_red);
+  void displayNoWait(                       // NEW 180501
+       const unsigned char* frame_buffer_black,
+       const unsigned char* frame_buffer_red);
+ protected:
+  void DisplayFrameNoWait();                  // NEW 180501
+ 
+ protected:                                 // NEW 180414
     //int  Init(const unsigned char* lut);  // NEW 180414
-    void SendCommand(unsigned char command);
-    void SendData(unsigned char data);
-    void WaitUntilIdle(void);
-    void Reset(void);
-    void SetFrameMemory(
-        const unsigned char* image_buffer,
-        int x,
-        int y,
-        int image_width,
-        int image_height
-    );
-    void SetFrameMemory(const unsigned char* image_buffer);
-    void ClearFrameMemory(unsigned char color);
-    void DisplayFrame(void);
-    void Sleep(void);
+  void SendCommand(unsigned char command);
+  void SendData(unsigned char data);
+  void WaitUntilIdle(void);
+  void Reset(void);
+  void SetFrameMemory(
+       const unsigned char* image_buffer,
+       int x,
+       int y,
+       int image_width,
+       int image_height);
+  void SetFrameMemory(const unsigned char* image_buffer);
+  void ClearFrameMemory(unsigned char color);
+  void DisplayFrame(void);
+  void Sleep(void);
 
-private:
-    unsigned int reset_pin;
-    unsigned int dc_pin;
-    unsigned int cs_pin;
-    unsigned int busy_pin;
-    const unsigned char* lut;
+ private:
+  unsigned int reset_pin;
+  unsigned int dc_pin;
+  unsigned int cs_pin;
+  unsigned int busy_pin;
+  const unsigned char* lut;
 
-    void SetLut(const unsigned char* lut);
-    void SetMemoryArea(int x_start, int y_start, int x_end, int y_end);
-    void SetMemoryPointer(int x, int y);
+  void SetLut(const unsigned char* lut);
+  void SetMemoryArea(int x_start, int y_start, int x_end, int y_end);
+  void SetMemoryPointer(int x, int y);
 };
 
 #endif /* EPD2IN9_H */

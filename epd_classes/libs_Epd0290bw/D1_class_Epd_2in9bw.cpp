@@ -146,6 +146,23 @@ void Epd_::display(const unsigned char* frame_buffer_black, const unsigned char*
 
 //***** END 180414 *********************************************
 
+
+void Epd_::displayNoWait(const unsigned char* frame_buffer_black, const unsigned char* frame_buffer_red)
+{
+  SetFrameMemory(frame_buffer_black, 0, 0, width, height);
+  DisplayFrameNoWait();
+}
+
+void Epd_::DisplayFrameNoWait(void) {
+    SendCommand(DISPLAY_UPDATE_CONTROL_2);
+    SendData(0xC4);
+    SendCommand(MASTER_ACTIVATION);
+    SendCommand(TERMINATE_FRAME_READ_WRITE);
+    //WaitUntilIdle();
+}
+
+//***** END 180501********************************************
+
 /**
  *  @brief: basic function for sending commands
  */
@@ -225,12 +242,18 @@ void Epd_::SetFrameMemory(
     SetMemoryArea(x, y, x_end, y_end);
     SetMemoryPointer(x, y);
     SendCommand(WRITE_RAM);
-    /* send the image data */
+
+ //----- NEW 180501 --------------------------------------------
+ conn->sendDatablock(image_buffer, image_width, x_end-x+1, y_end-y+1);
+    
+    /* 
+    // send the image data
     for (int j = 0; j < y_end - y + 1; j++) {
         for (int i = 0; i < (x_end - x + 1) / 8; i++) {
             SendData(image_buffer[i + j * (image_width / 8)]);
         }
     }
+    */
 }
 
 /**
