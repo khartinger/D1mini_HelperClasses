@@ -1,4 +1,4 @@
-﻿//_____D1_class_EpdPainter.h__________________180401-180501_____
+﻿//_____D1_class_EpdPainter.h__________________180401-180515_____
 // D1 mini class for painting text and shapes on a waveshare
 // e-paper display.
 
@@ -54,5 +54,9 @@ class EpdPainter {
   void clearDisplay();
   void display();
   void displayNoWait();
+
+ //-----helper functions----------------------------------------
+ public:
+  String utf8ToEpd(String s);
 };
 #endif
