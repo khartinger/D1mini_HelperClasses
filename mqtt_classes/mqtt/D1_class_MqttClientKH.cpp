@@ -66,9 +66,9 @@ String MqttClientKH::getsClientState(int client_state)
  {
   case MQTT_CONNECTION_TIMEOUT: // -4
    s1+="MQTT connection timeout"; break;
-  case MQTT_CONNECTION_LOST: // -3
+  case MQTT_CONNECTION_LOST:            // -3
    s1+="MQTT connection lost"; break;
-  case MQTT_CONNECT_FAILED: // -2
+  case MQTT_CONNECT_FAILED:             // -2
    s1+="MQTT connect failed"; break;
   case MQTT_DISCONNECTED: // -1
    s1+="MQTT disconnected"; break;
