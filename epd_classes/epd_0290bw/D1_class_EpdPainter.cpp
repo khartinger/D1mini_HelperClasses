@@ -1,4 +1,4 @@
-﻿//_____D1_class_EpdPainter.cpp________________180401-180501_____
+﻿//_____D1_class_EpdPainter.cpp________________180401-180401_____
 // D1 mini class for painting text and shapes on a waveshare
 // e-paper display.
 //
