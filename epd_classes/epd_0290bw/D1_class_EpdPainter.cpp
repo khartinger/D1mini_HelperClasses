@@ -1,4 +1,4 @@
-﻿//_____D1_class_EpdPainter.cpp________________180401-180401_____
+﻿//_____D1_class_EpdPainter.cpp________________180401-180601_____
 // D1 mini class for painting text and shapes on a waveshare
 // e-paper display.
 //
@@ -152,6 +152,19 @@ void EpdPainter::drawBigStringAt(int x, int y, String text, int color) {
  text.toCharArray(charBuf, text.length()+1);
  paintBlack->DrawBigStringAt(x, y, charBuf, this->font, (color==BLACK) ? 1 : 0);
  if (paintColor!=NULL) paintColor->DrawBigStringAt(x, y, charBuf, this->font, (color==RED) ? 1 : 0);
+}
+
+//-----New 2018-06-01-------------------------------------------
+void EpdPainter::drawEllipse(int x0, int y0, int x1, int y1, int color)
+{
+ paintBlack->DrawEllipse(x0,y0,x1,y1, (color==BLACK) ? 1 : 0);
+ if (paintColor!=NULL) paintColor->DrawEllipse(x0,y0,x1,y1, (color==RED) ? 1 : 0);
+}
+
+void EpdPainter::drawFilledEllipse(int x0, int y0, int x1, int y1, int color)
+{
+ paintBlack->DrawFilledEllipse(x0,y0,x1,y1, (color==BLACK) ? 1 : 0);
+ if (paintColor!=NULL) paintColor->DrawFilledEllipse(x0,y0,x1,y1, (color==RED) ? 1 : 0);
 }
 
 //**************************************************************

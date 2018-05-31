@@ -1,11 +1,11 @@
-﻿//_____D1_class_EpdPainter.h__________________180401-180527_____
+﻿//_____D1_class_EpdPainter.h__________________180401-180601_____
 // D1 mini class for painting text and shapes on a waveshare
 // e-paper display.
 
 #ifndef D1_CLASS_EPDPAINTER_H
 #define D1_CLASS_EPDPAINTER_H
 #include "Arduino.h"                   // 
-#include "D1_class_Epd_2in9bw.h"      // class Edp_
+#include "D1_class_Epd_2in9bw.h"       // class Edp_
 #include "D1_class_EpdPaint.h"         // class EdpPaint
 
 #define WHITE           0
@@ -48,7 +48,9 @@ class EpdPainter {
   void drawBigLine(int x0, int y0, int x1, int y1, int color=BLACK);
   void drawBigCharAt(int x, int y, char ascii_char, int color=BLACK);
   void drawBigStringAt(int x, int y, String text, int color=BLACK);
-
+  //-----NEW 2018-06-01-----------------------------------------
+  void drawEllipse(int x0, int y0, int x1, int y1, int color=BLACK);
+  void drawFilledEllipse(int x0, int y0, int x1, int y1, int color=BLACK);
 
 //-----display methods------------------------------------------
   void clearDisplay();
