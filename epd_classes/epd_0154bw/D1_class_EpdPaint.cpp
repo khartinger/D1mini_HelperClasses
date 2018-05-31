@@ -2,7 +2,9 @@
  *  @filename   :   D1_class_EpdPaint.cpp (epdpaint.cpp)
  *  @brief      :   Paint tools
  *  @author     :   Yehui from Waveshare
- *  @update     :   Christian & Karl Hartinger, April 01 2018
+ *  @updates : by Christian & Karl Hartinger
+ *             2018-04-01 Add DrawLine, DrawTriangle, DrawBig...
+ *             2018-06-01 Add DrawEllipse
  *  
  *  Copyright (C) Waveshare     September 9 2017
  *  
@@ -504,5 +506,58 @@ void EpdPaint::fillTriangle(int x0, int y0, int x1, int y1, int x2, int y2, int 
   }
  }
 }
+
+//**************************************************************
+// UPDATE June 2018
+//**************************************************************
+
+/**
+*  @brief: Draw a ellise (points: upper left, lower right)
+*    Added by Karl Hartinger
+*/
+void EpdPaint::DrawEllipse(int x0, int y0, int x1, int y1, int color)
+{
+ int xm=(x0+x1)/2, ym=(y0+y1)/2;  // center of the ellipse
+ int a=(x1-x0)/2, b=(y1-y0)/2;    // axis of the ellipse
+ if(a<0) a=-a;                    // make value positive
+ if(b<0) b=-b;                    // make value positive
+ int dx = 0, dy = b;              // I. Quadrant from upper left to lower right
+ long a2 = a*a, b2 = b*b;
+ long err = b2-(2*b-1)*a2, e2;    // error in 1st step
+ do {
+  DrawPixel(xm+dx, ym+dy, color); // I. Quadrant
+  DrawPixel(xm-dx, ym+dy, color); // II. Quadrant
+  DrawPixel(xm-dx, ym-dy, color); // III. Quadrant
+  DrawPixel(xm+dx, ym-dy, color); // IV. Quadrant
+  e2 = 2*err;
+  if (e2 <  (2*dx+1)*b2) { dx++; err += (2*dx+1)*b2; }
+  if (e2 > -(2*dy-1)*a2) { dy--; err -= (2*dy-1)*a2; }
+ } while (dy >= 0);
+ while (dx++ < a) {               // break, if flat ellipse (b=1)
+  DrawPixel(xm+dx, ym, color);    // -> draw top of ellipse
+  DrawPixel(xm-dx, ym, color);
+ }
+}
+
+void EpdPaint::DrawFilledEllipse(int x0, int y0, int x1, int y1, int color)
+{
+ int xm=(x0+x1)/2, ym=(y0+y1)/2;  // center of the ellipse
+ int a=(x1-x0)/2, b=(y1-y0)/2;    // axis of the ellipse
+ if(a<0) a=-a;                    // make value positive
+ if(b<0) b=-b;                    // make value positive
+ int dx = 0, dy = b;              // I. Quadrant from upper left to lower right
+ long a2 = a*a, b2 = b*b;
+ long err = b2-(2*b-1)*a2, e2;    // error in 1st step
+ do {
+  DrawLine(xm-dx, ym+dy, xm+dx, ym+dy, color);
+  DrawLine(xm-dx, ym-dy, xm+dx, ym-dy, color);
+  e2 = 2*err;
+  if (e2 <  (2*dx+1)*b2) { dx++; err += (2*dx+1)*b2; }
+  if (e2 > -(2*dy-1)*a2) { dy--; err -= (2*dy-1)*a2; }
+ } while (dy >= 0);
+ while (dx++ < a) {               // break, if flat ellipse (b=1)
+  DrawLine(xm-dx, ym, xm+dx, ym, color);
+ }
+} 
 
 /* END OF FILE */

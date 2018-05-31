@@ -52,9 +52,13 @@ class EpdPainter {
   void drawEllipse(int x0, int y0, int x1, int y1, int color=BLACK);
   void drawFilledEllipse(int x0, int y0, int x1, int y1, int color=BLACK);
 
-//-----display methods------------------------------------------
+ //-----display methods-----------------------------------------
   void clearDisplay();
   void display();
   void displayNoWait();
+
+ //-----helper functions----------------------------------------
+ public:
+  String utf8ToEpd(String s);
 };
 #endif

@@ -1,6 +1,8 @@
 ﻿//_____D1_class_EpdPainter.cpp________________180401-180601_____
 // D1 mini class for painting text and shapes on a waveshare
 // e-paper display.
+// 180515: utf8ToEpd() added
+// 180601: drawEllipse() added
 //
 #include "D1_class_EpdPainter.h"
 #include <stdlib.h>
@@ -183,4 +185,66 @@ void EpdPainter::display() {
 
 void EpdPainter::displayNoWait() {
  epd.displayNoWait(frame1, frame2);
+}
+
+//**************************************************************
+// helper functions
+//**************************************************************
+
+//_____replace special chars by hex code________________________
+String EpdPainter::utf8ToEpd(String s)
+{
+ String sUnknown=String((char)127);
+ String s1="";
+ char c1,c2,c3;
+ int i, imax=s.length();
+ //Serial.print("imax=");Serial.println(imax);
+ for(i=0; i<imax; i++)
+ {
+  c1=s.charAt(i);
+  if(c1<128) 
+   s1=s1+String(c1);
+  else
+  {
+   c2=s.charAt(++i);
+   switch(c1)
+   {
+    case 0xc2: //-----first byte is C2--------------------------
+     switch(c2) {
+      case 0xb0: s1=s1+"\xF8"; break;  //degree sign
+      case 0xb5: s1=s1+"\xE6"; break;  //micro sign
+      case 0xaa: s1=s1+"\xA6"; break;  //feminine ordinal indicator
+      case 0xb2: s1=s1+"\xFD"; break;  //superscript 2
+      default: s1=s1+sUnknown;
+     }
+     break;
+    case 0xc3: //-----first byte is C3--------------------------
+     switch(c2){
+      case 0x84: s1=s1+"\x8E"; break;  //A with diaeresis
+      case 0x96: s1=s1+"\x99"; break;  //O with diaeresis
+      case 0x9c: s1=s1+"\x9A"; break;  //U with diaeresis
+      case 0xa4: s1=s1+"\x84"; break;  //a with diaeresis
+      case 0xb6: s1=s1+"\x94"; break;  //o with diaeresis
+      case 0xbc: s1=s1+"\x81"; break;  //u with diaeresis
+      case 0x9f: s1=s1+"\xE1"; break;  //sharp s, beta
+      default: s1=s1+sUnknown;
+     }
+     break;
+    case 0xe2: //-----first byte is E2--------------------------
+     switch(c2) {
+      case 0x82: 
+       c3=s.charAt(++i);
+       if(c3==0xAC) { s1=s1+"\x9E"; }  // Euro
+               else { s1=s1+sUnknown; }
+       break;
+      default: s1=s1+sUnknown;
+     }
+     break;
+    default: //-----first byte unknown--------------------------
+     //s1=s1+sUnknown; break;
+     s1=s1+String(c1); i--; break;
+   }
+  }
+ }
+ return s1;
 }

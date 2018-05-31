@@ -80,10 +80,10 @@ class EpdPaint {                  // NEW 180401
   void DrawFilledEllipse(int x0, int y0, int x1, int y1, int color);
 
  private:
- unsigned char* image;
- int width;
- int height;
- int rotate;
+  unsigned char* image;
+  int width;
+  int height;
+  int rotate;
 };
 
 #endif
