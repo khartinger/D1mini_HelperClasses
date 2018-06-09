@@ -1,7 +1,9 @@
-﻿//_____D1_class_EpdPainter.h__________________180401-180601_____
+﻿//_____D1_class_EpdPainter.h__________________180401-180608_____
 // D1 mini class for painting text and shapes on a waveshare
-// e-paper display.
-
+// e-paper display (Epd0154bw).
+// 180608: utf8ToEpd(), drawEllipse(), getFontWidth(), ... added
+//
+//
 #ifndef D1_CLASS_EPDPAINTER_H
 #define D1_CLASS_EPDPAINTER_H
 #include "Arduino.h"                   // 
@@ -24,6 +26,7 @@ class EpdPainter {
 
  //-----constructor & co----------------------------------------
  public:
+  EpdPainter() {};
   EpdPainter(Epd_ &epd);
   ~EpdPainter();
  
@@ -48,15 +51,17 @@ class EpdPainter {
   void drawBigLine(int x0, int y0, int x1, int y1, int color=BLACK);
   void drawBigCharAt(int x, int y, char ascii_char, int color=BLACK);
   void drawBigStringAt(int x, int y, String text, int color=BLACK);
-  //-----NEW 2018-06-01-----------------------------------------
+  //-----NEW 2018-06-08-----------------------------------------
   void drawEllipse(int x0, int y0, int x1, int y1, int color=BLACK);
   void drawFilledEllipse(int x0, int y0, int x1, int y1, int color=BLACK);
-
+  int  getFontHeight();
+  int  getFontWidth();
+  bool isFont();
+  sFONT* getFont();
  //-----display methods-----------------------------------------
   void clearDisplay();
   void display();
   void displayNoWait();
-
  //-----helper functions----------------------------------------
  public:
   String utf8ToEpd(String s);
