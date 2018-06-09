@@ -2,7 +2,7 @@
 // D1 mini class for painting text and shapes on a waveshare
 // e-paper display.
 // 180515: utf8ToEpd() added
-// 180601: drawEllipse() added
+// 180601: drawEllipse(), getFontWidth(), ... added
 //
 #include "D1_class_EpdPainter.h"
 #include <stdlib.h>
@@ -12,26 +12,29 @@
 //**************************************************************
 
 //_____constructor______________________________________________
-//EpdPainter::EpdPainter() { }
-
 EpdPainter::EpdPainter(Epd_ &epd){
  this->epd=epd;
+ //-----init frame(s) (background)------------------------------
  this->frame1=new unsigned char[epd.height * epd.width / 8];
  if (epd.colors > 2)
   this->frame2=new unsigned char[epd.height * epd.width / 8];
  else
   this->frame2=NULL;
-
+ //-----init canvas---------------------------------------------
  paintBlack=new EpdPaint(this->frame1, epd.width, epd.height);
  if (epd.colors > 2)
   paintColor=new EpdPaint(this->frame2, epd.width, epd.height);
  else
   paintColor=NULL;
+ //-----init font-----------------------------------------------
+ this->font=NULL;
 }
+
 EpdPainter::~EpdPainter() {
     delete[] this->frame1;
     delete[] this->frame2;
  }
+ 
 //**************************************************************
 //    drawing methods
 //**************************************************************
@@ -168,6 +171,29 @@ void EpdPainter::drawFilledEllipse(int x0, int y0, int x1, int y1, int color)
  paintBlack->DrawFilledEllipse(x0,y0,x1,y1, (color==BLACK) ? 1 : 0);
  if (paintColor!=NULL) paintColor->DrawFilledEllipse(x0,y0,x1,y1, (color==RED) ? 1 : 0);
 }
+
+//_____get font height of font, used in a object________________
+int EpdPainter::getFontHeight()
+{
+ if(this->font==NULL) return (0);
+ return font->Height;
+}
+
+//_____get font Width of font, used in a object_________________
+int EpdPainter::getFontWidth() 
+{
+ if(this->font==NULL) return (0);
+ return font->Width;
+}
+
+//_____Is a font defined?_______________________________________
+bool EpdPainter::isFont() {
+ if(this->font==NULL) return false;
+ return true;
+}
+
+//_____return pointer on font___________________________________
+sFONT* EpdPainter::getFont() { return this->font; }
 
 //**************************************************************
 //    display methods

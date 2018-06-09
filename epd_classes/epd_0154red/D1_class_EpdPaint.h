@@ -2,7 +2,7 @@
  *  @filename   :   D1_class_Paint.h (epdpaint.h)
  *  @brief      :   Header file for epdpaint.cpp
  *  @author     :   Yehui from Waveshare
-*  @updates : by Christian & Karl Hartinger
+ *  @updates : by Christian & Karl Hartinger
  *             2018-04-01 Add DrawLine, DrawTriangle, DrawBig...
  *             2018-06-01 Add DrawEllipse
  *  
