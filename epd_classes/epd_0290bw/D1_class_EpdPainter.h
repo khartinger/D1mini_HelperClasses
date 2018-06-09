@@ -24,6 +24,7 @@ class EpdPainter {
 
  //-----constructor & co----------------------------------------
  public:
+  EpdPainter() {};
   EpdPainter(Epd_ &epd);
   ~EpdPainter();
  
@@ -51,7 +52,10 @@ class EpdPainter {
   //-----NEW 2018-06-01-----------------------------------------
   void drawEllipse(int x0, int y0, int x1, int y1, int color=BLACK);
   void drawFilledEllipse(int x0, int y0, int x1, int y1, int color=BLACK);
-
+  int  getFontHeight();
+  int  getFontWidth();
+  bool isFont();
+  sFONT* getFont();
  //-----display methods-----------------------------------------
   void clearDisplay();
   void display();
