@@ -1,4 +1,4 @@
-﻿//_____D1_class_BME280.h______________________180326-190326_____
+﻿//_____D1_class_BME280.h______________________180326-181027_____
 // D1 mini class for temperature, humidity and pressure/altitude 
 // sensor BME280.
 // * temperature -40°C...85°C +-1°, 0,01°C resolution
@@ -6,6 +6,9 @@
 // * pressure    300...1100hPa +-1,0hPa 
 // Default i2c address is 0x76 (other 0x77)
 // Code based on Adafruit_BME280.h/.cpp and SparkFunBME280.h/.cpp
+// Created by Karl Hartinger, October 27, 2018.
+// Last Change 181027: add setAddress()
+// Released into the public domain.
 
 #ifndef D1_CLASS_BME280_H
 #define D1_CLASS_BME280_H
@@ -165,6 +168,7 @@ class BME280 {
  protected:
   void   setup();
  public:
+  void   setAddress(int i2c_address);
   bool   setParams(bme280_mode mode, bme280_sampling temp,
           bme280_sampling pres,bme280_sampling humi,
           bme280_filter filter, bme280_standby  standby);

@@ -15,6 +15,14 @@ BH1750::BH1750(int i2c_address) {
  setup(); 
 }
 
+//_____set i2c address and do setup_____________________________
+void BH1750::setAddress(int i2c_address)
+{
+ if((i2c_address==0x23)||(i2c_address==0x5C))
+  i2cAddress=i2c_address; 
+ setup(); 
+}
+
 //_____setup device BH1750______________________________________
 void BH1750::setup()
 {
@@ -55,7 +63,7 @@ long BH1750::getBi() {
 //_____read temperature and humidity from sensor________________
 void BH1750::measuring()
 {
-  //-----make a delay between two measuringments-----------------
+ //-----make a delay between two measuringments-----------------
  if(millis()<nextMeasuring_) return;
  nextMeasuring_=millis()+measuringDelay_;
  
