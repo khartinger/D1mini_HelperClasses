@@ -1,4 +1,4 @@
-﻿//_____D1_class_BME280.cpp____________________180326-181027_____
+﻿//_____D1_class_BME280.cpp____________________180326-181102_____
 // D1 mini class for temperature, humidity and pressure/altitude 
 // sensor BME280.
 // * temperature -40°C...85°C +-1°, 0,01°C resolution
@@ -7,7 +7,7 @@
 // Default i2c address is 0x76 (other 0x77)
 // Code based on Adafruit_BME280.h/.cpp and SparkFunBME280.h/.cpp
 // Created by Karl Hartinger, October 27, 2018.
-// Last Change 181027: add setAddress()
+// Last Change 181102: add setAddress(), getAddress(), getID()
 // Released into the public domain.
 
 #include "D1_class_BME280.h"
@@ -99,13 +99,14 @@ bool BME280::softReset() {
  return true;
 }
 
-//_____check chip id (must be 0x60)_____________________________
+//_____check chip id (must be 0x60 or 0x58)_____________________
 // return: true = chip ID OK, false = error
 bool BME280::checkID() {
  uint8_t id=read8(BME280_REG_CHIPID);
- if(id!=BME280_CHIPID) { status=BME280_ERR_ID; return false; }
- status=BME280_OK;
- return true;
+ if(id==BME280_CHIPID) { status=BME280_OK; return true; }
+ if(id==BMP280_CHIPID) { status=BME280_OK; return true; }
+ status=BME280_ERR_ID;
+ return false;
 }
 
 //_____check, if sensor is busy copying cal data________________
@@ -150,6 +151,12 @@ bool BME280::readCompensationParams(void) {
 //_____set waiting time between two measurements in ms__________
 void BME280::setWaitMeasuring(unsigned long wait_ms)
 { waitMeasuring_=wait_ms; }
+
+//_____return i2c address_______________________________________
+int BME280::getAddress() { return i2cAddress; }
+
+//_____get ID of sensor (0x60 BME, 0x58 BMP)____________________
+int BME280::getID() { return(read8(BME280_REG_CHIPID)); }
 
 //_____system status as int_____________________________________
 int BME280::getStatus() { return status; }
@@ -290,6 +297,18 @@ float BME280::getAltitude()
 //    helper functions
 //**************************************************************
 
+//_____convert float to String with given decimals_______________
+String BME280::float2String(float f, int len, int decimals)
+{
+ char carray[24];                           // convert helper
+ String s1="";                              // help string
+ if((len<0)||(len>24)||(decimals<0)) return s1;
+ dtostrf(f,len,decimals,carray);            // format float l.d
+ s1=String(carray);                         // array to string
+ if(len<=decimals) s1.trim();               // remove blanks
+ return s1;
+}
+
 //_____read pressure, temperature and humidity from sensor______
 // v[0]..v[2] pressure, v[3]..v[5] temperature, v[6]..v[7] humi
 void BME280::measuring()
@@ -379,18 +398,6 @@ void BME280::measuring()
  float atmospheric = BME280_FP(iPre_) / 100.0F;
  altitude_= 44330.0 * (1.0 - pow(atmospheric / sea, 0.1903));
  //Serial.print(", h="); Serial.println(altitude_);
-}
-
-//_____convert float to String with given decimals_______________
-String BME280::float2String(float f, int len, int decimals)
-{
- char carray[24];                           // convert helper
- String s1="";                              // help string
- if((len<0)||(len>24)||(decimals<0)) return s1;
- dtostrf(f,len,decimals,carray);            // format float l.d
- s1=String(carray);                         // array to string
- if(len<=decimals) s1.trim();               // remove blanks
- return s1;
 }
 
 //**************************************************************

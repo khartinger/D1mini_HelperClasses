@@ -1,4 +1,4 @@
-﻿//_____D1_class_BME280.h______________________180326-181027_____
+﻿//_____D1_class_BME280.h______________________180326-181102_____
 // D1 mini class for temperature, humidity and pressure/altitude 
 // sensor BME280.
 // * temperature -40°C...85°C +-1°, 0,01°C resolution
@@ -7,7 +7,7 @@
 // Default i2c address is 0x76 (other 0x77)
 // Code based on Adafruit_BME280.h/.cpp and SparkFunBME280.h/.cpp
 // Created by Karl Hartinger, October 27, 2018.
-// Last Change 181027: add setAddress()
+// Last Change 181102: add setAddress(), getAddress(), getID()
 // Released into the public domain.
 
 #ifndef D1_CLASS_BME280_H
@@ -81,7 +81,8 @@
 #define BME280_REG_HUMIDATA  0xFD //Humidity    MSB-LSB
 
 //-----register content-----------------------------------------
-#define BME280_CHIPID        0x60 //Chip ID
+#define BME280_CHIPID        0x60 //Chip ID BME280
+#define BMP280_CHIPID        0x58 //Chip ID BMP280 (no hum)
 #define BME280_RESET         0xB6 //Write 0xB6 resets device
 
 //-----parts of register content--------------------------------
@@ -163,49 +164,51 @@ class BME280 {
     
  //-----constructor & co----------------------------------------
  public:
-  BME280();
-  BME280(int i2c_address);
+  BME280();                       // default constructor
+  BME280(int i2c_address);        // constructor 2
  protected:
-  void   setup();
+  void   setup();                 // start i2c, begin()
  public:
   void   setAddress(int i2c_address);
   bool   setParams(bme280_mode mode, bme280_sampling temp,
           bme280_sampling pres,bme280_sampling humi,
           bme280_filter filter, bme280_standby  standby);
-  bool   begin();
-  bool   softReset();
+  bool   begin();                 // checkID, reset, set regs
+  bool   softReset();             // soft reset (set IIR off...)
  protected:
-  bool   checkID();
-  bool   isReadingCalibration();
-  bool   readCompensationParams(void);
+  bool   checkID();               // must be 0x60 or 0x58
+  bool   isReadingCalibration();  // check for sensor is busy
+  bool   readCompensationParams(void); //sensor non-volatile mem
  //-----setter and getter methods-------------------------------
  public:
   void   setWaitMeasuring(unsigned long wait_ms);
-  int    getStatus();
-  String getsStatus();
+  int    getAddress();            // return i2c address
+  int    getID();                 // 0x60=BME280, 0x58=BMP280
+  int    getStatus();             // status as int (0=OK)
+  String getsStatus();            // status as german text
   int    getValues(float &temperature, float &humidity, 
                    float &pressure,    float &altitude);
-  String getsValues();
-  String getsValues(String sep);
+  String getsValues();            // values as String separated by ,
+  String getsValues(String sep);  // values as String separated by sep
+  //measured values as String separated by sep, given decimals
   String getsValues(String sep,int dt,int dh,int dp,int da);
-  String getsJson();
-  String getsJson(int dt,int dh,int dp,int da);
-  float  getTemperature();
-  float  getHumidity();
-  float  getPressure();
-  float  getAltitude();
- 
+  String getsJson();              // values as JSON-Object, 1 decimal
+  String getsJson(int dt,int dh,int dp,int da); // given decimals
+  float  getTemperature();        // temperature or BME280_ERR_FLOAT
+  float  getHumidity();           // humidity or BME280_ERR_FLOAT
+  float  getPressure();           // pressure or BME280_ERR_FLOAT
+  float  getAltitude();           // altitude or BME280_ERR_FLOAT
+  String float2String(float f, int len, int decimals);
  //-----helper functions----------------------------------------
  protected:
-  void    measuring();
-  String  float2String(float f, int len, int decimals);
+  void     measuring();           // read values from sensor
  //-----helper functions: i2c-access----------------------------
- bool     write8(byte reg, byte value);     // write 1 byte
- uint8_t  read8(byte reg);        // read 1 byte
- uint16_t read16(byte reg);       // read 2 byte
- uint32_t read24(byte reg);       // read 3 byte
- int16_t  readS16(byte reg);      // read 16bit signed
- uint16_t read16_LE(byte reg);    // little endian (lo-hi byte)
- int16_t  readS16_LE(byte reg);   // signed little endian
+  bool     write8(byte reg, byte value); // write 1 byte
+  uint8_t  read8(byte reg);       // read 1 byte
+  uint16_t read16(byte reg);      // read 2 byte
+  uint32_t read24(byte reg);      // read 3 byte
+  int16_t  readS16(byte reg);     // read 16bit signed
+  uint16_t read16_LE(byte reg);   // little endian (lo-hi byte)
+  int16_t  readS16_LE(byte reg);  // signed little endian
 };
 #endif
