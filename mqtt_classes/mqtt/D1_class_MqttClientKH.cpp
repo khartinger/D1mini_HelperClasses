@@ -250,8 +250,8 @@ bool MqttClientKH::delSubscribe(String topic)
  for(int j=i; j<numSub_; j++)
   aTopicSub_[j]=aTopicSub_[j+1];
  //-----subscribe from broker-----------------------------------
- char cTopic[1+MESSAGE_MAXLEN];       // helper array
- topic.toCharArray(cTopic,MESSAGE_MAXLEN);
+ char cTopic[1+TOPIC_MAXLEN];               // helper array
+ topic.toCharArray(cTopic,TOPIC_MAXLEN);
  unsubscribe(cTopic);
 }
 
@@ -303,23 +303,23 @@ bool MqttClientKH::delPublish(String topic)
 }
 
 //_____convert String to array and publish (without register)___
-void MqttClientKH::publishString(String topic, String payload)
+bool MqttClientKH::publishString(String topic, String payload)
 {
- publishString(topic, payload, false);
+ return(publishString(topic, payload, false));
 }
 
 //_____convert String to array and publish______________________
-void MqttClientKH::publishString(
+bool MqttClientKH::publishString(
   String topic, String payload, bool retain=false)
 {
  //Serial.println("publishString: topic="+topic+", payload="+payload+", retain="+retain);
- if(payload.length()<1) return;
- char top[1+MESSAGE_MAXLEN];          // helper array
- char msg[1+MESSAGE_MAXLEN];          // helper array
- topic.toCharArray(top,MESSAGE_MAXLEN);
- payload.toCharArray(msg,MESSAGE_MAXLEN);
- publish(top,msg,retain);
+ if(payload.length()<0) return false;
+ char top[1+TOPIC_MAXLEN];                  // helper array
+ char msg[1+PAYLOAD_MAXLEN];                // helper array
+ topic.toCharArray(top,TOPIC_MAXLEN);
+ payload.toCharArray(msg,PAYLOAD_MAXLEN);
  //Serial.println("publishString: published"); 
+ return(publish(top,msg,retain));
 }
 
 //_____set array of registered subscribe topics_________________
@@ -374,8 +374,8 @@ int MqttClientKH::setPublish(
 //_____convert String to array and subscribe____________________
 void MqttClientKH::subscribeString(String topic)
 {
- char top[1+MESSAGE_MAXLEN];          // helper array
- topic.toCharArray(top,MESSAGE_MAXLEN);
+ char top[1+PAYLOAD_MAXLEN];          // helper array
+ topic.toCharArray(top,TOPIC_MAXLEN);
  subscribe(top);
 }
 

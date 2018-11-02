@@ -28,7 +28,8 @@
 #define  TOPIC_MAX      8              // max. topics to sub
 #define  MQTT_RECONNECT_MS        4000
 #define  TIMEOUT_WIFI_CONNECT_MS  8000 // wait for WLAN
-#define  MESSAGE_MAXLEN            127
+#define  TOPIC_MAXLEN               48
+#define  PAYLOAD_MAXLEN            200
 #ifndef  DEBUG_MQTT
  #define DEBUG_MQTT               true // true=Serial output
 #endif
@@ -77,8 +78,8 @@ class MqttClientKH : public PubSubClient {
   bool delSubscribe(String topic);
   bool addPublish(String topic, String payload, bool retain);
   bool delPublish(String topic);
-  void publishString(String topic, String payload);
-  void publishString(String topic, String payload, bool retain);
+  bool publishString(String topic, String payload);
+  bool publishString(String topic, String payload, bool retain);
   //-----seldom used-------------------------------------------
   int  setSubscribe(String aTopicSub[], int num);
   int  setPublish(String aTopicPub[], String aPayload[], int num);
