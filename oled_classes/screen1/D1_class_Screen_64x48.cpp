@@ -1325,6 +1325,7 @@ size_t _Adafruit_GFX::write(uint8_t c)
    }
   }
  }
+ return 1;
 }
 
 //_____set cursor to given position_____________________________
