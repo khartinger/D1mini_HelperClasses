@@ -1,8 +1,8 @@
-# D1 mini: OLED Klasse
-Version 2018-03-03   
+# D1 mini: Klasse f&uuml;r 0,66" OLED
+Version 2018-12-15   
 [English version](./oled_classes_README.md "English version")   
 
-Die Klasse `Screen1` dient haupts&auml;chlich zur Anzeige von Text auf einem 0,66" gro&szlig;en OLED Shield f&uuml;r den D1 mini. Es k&ouml;nnen maximal 6 Zeilen mit 10 Zeichen dargestellt werden.   
+Die Klasse `Screen1` dient zur Anzeige von Text auf einem 0,66" gro&szlig;en OLED Shield f&uuml;r den D1 mini. Es k&ouml;nnen maximal 6 Zeilen mit 10 Zeichen dargestellt werden.   
 Das Display basiert auf dem SSD1306, hat eine Aufl&ouml;sung von 64x48 Pixel und wird &uuml;ber den I2C-Bus angesteuert (7bit-Adresse 0x3C bzw. 0x3D).   
 Der Programmcode basiert weitgehend auf den Adafruit-Bibliotheken
 * _Adafruit_SSD1306-esp8266-64x48.zip
@@ -11,16 +11,18 @@ Der Programmcode basiert weitgehend auf den Adafruit-Bibliotheken
 und ist speziell auf das OLED-Shield f&uuml;r den D1 mini zugeschnitten. Zus&auml;tzlich zur Textausgabe k&ouml;nnen mit dieser Klasse auch Grafiken gezeichnet und Basisfunktionen des Displays ausgef&uuml;hrt werden.
 
 ## Verwendung
-Um die Klasse `Screen1` zu verwenden, m&uuml;ssen lediglich folgende vier Dateien in das aktuelle Arbeitsverzeichnis kopiert werden:   
-`D1_class_Screen_64x48.h`, `D1_class_Screen_64x48.cpp`, `D1_class_Screen1.h` und `D1_class_Screen1.cpp`
+Um die Klasse `Screen1` zu verwenden, m&uuml;ssen lediglich folgende vier Dateien in das aktuelle Arbeitsverzeichnis oder in das src-Verzeichnis kopiert werden:   
+`D1_class_Screen_64x48.h`, `D1_class_Screen_64x48.cpp`, `D1_class_Screen1.h` und `D1_class_Screen1.cpp`   
+NEU: Dateien mit Scroll-Funktion:   
+`D1_class_Screen_64x48.h`, `D1_class_Screen_64x48.cpp`, `D1_class_Screen1a.h` und `D1_class_Screen1a.cpp`   
 
 ## Vorgefertigte Bildschirm-Layouts
 ### Bildschirm-Namen
-Bildschirm-Namen bestehen aus dem Wort `screen` gefolgt von der Anzahl an Textzeilen bei diesem Bildschirm (6, 5, 4, 2, 1 oder Kombinationen wie 221, 112, 13 12).    
+Bildschirm-Namen bestehen aus dem Wort `screen` gefolgt von der Anzahl an Textzeilen bei diesem Bildschirm (6, 5, 4, 4B, 2, 1 oder Kombinationen wie 221, 112, 13 12).    
 H&auml;ngt man an den Namen ein `i` an, so wird die entsprechende Zeile invertiert dargestellt (schwarz auf wei&szlig;).   
 H&auml;ngt man an den Namen ein `Clear` an, so wird der Bildschirm vor der Textausgabe gel&ouml;scht.   
 
-Parameter
+**Parameter**   
 * line_ .... Zeilennummer, in die der Text geschrieben wird (1 bis 6 = Zeile 6)
 * text_ .... Text, der geschrieben werden soll (max. 10 Zeichen pro Zeile, 5 Zeichen bei doppelt gro&szlig;en Zeichen)
 * align_ ... Textausrichtung (Vorgabe: 'l'=linksb&uuml;ndig, Zeile wird vorher gel&ouml;scht. 'c'=zentriert, 'r'=rechtsb&uuml;ndig, 'L'=linksb&uuml;ndig+Zeichen &uuml;berschreiben, C'=zentriert+Zeichen &uuml;berschreiben, 'R'=rechtsb&uuml;ndig+Zeichen &uuml;berschreiben)   
@@ -28,6 +30,9 @@ Parameter
 _Beispiele_
 * `screen6iClear(1,"Demo",'c');`  ..... L&ouml;schen des Bildschirms, schreiben des Textes "Demo" invertiert und zentriert in die Zeile 1 des sechszeiligen Bildschirms.
 * `screen6(3,"Demo for",'l');`  ..... Schreiben des Textes "Demo for" linksb&uuml;ndig in Zeile 3 des Bildschirms mit 6 Zeilen.
+
+### Scrollen
+Die Bildschirme _screen6_, _screen5_, _screen4_ und _screen4B_ der Dateien `D1_class_Screen1a.h` und `D1_class_Screen1a.cpp` erm&ouml;glichen das Scrollen eines Textes. Dazu wird der Text in die n&auml;chste, nicht sichtbare Zeile geschrieben. (ZB bei screen6: Zeile 7 usw.)
 
 ### Bildschirmbilder
 **Einfache Bildschirme (Screens): ein Bereich, 4 bis 6 Zeilen mit einfach hohen Zeichen**    
@@ -138,8 +143,11 @@ __*Beachte*__: Bildschime mit i (wie screen6i, screen5i, screen4i) machen das gl
 | -------------------------------------------------- | ---------------- |   
 | + void screen4B (int line_, String text_)                    | Schreibe Text in Zeile 1...6, Text linksb&uuml;ndig, Rahmen  |
 | + void screen4B (int line_, String text_, char align_)       | Schreibe Text in Zeile 1...6, angegebene Textausrichtung, Rahmen |
-| + void screen4BClear (int line_, String text_)               | Bildschirm l&ouml;schen, schreibe Text in Zeile 1...6, Text linksb&uuml;ndig, Rahmen  |
-| <nobr>+ void screen4BClear (int line_, String text_, char align_)</nobr> | Bildschirm l&ouml;schen, schreibe Text in Zeile 1...6, angegebene Textausrichtung, Rahmen |
+| + void screen4BClear (int line_, String text_)               | Bildschirmzeile 1 bis 4 l&ouml;schen, schreibe Text in Zeile 1...6, Text linksb&uuml;ndig, Rahmen  |
+| <nobr>+ void screen4BClear (int line_, String text_, char align_)</nobr> | Bildschirmzeile 1 bis 4 l&ouml;schen, schreibe Text in Zeile 1...6, angegebene Textausrichtung, Rahmen |
+| + void screen4BClearAll (int line_, String text_)               | Bildschirm l&ouml;schen, schreibe Text in Zeile 1...6, Text linksb&uuml;ndig, Rahmen  |
+| <nobr>+ void screen4BClearAll (int line_, String text_, char align_)</nobr> | Bildschirm l&ouml;schen, schreibe Text in Zeile 1...6, angegebene Textausrichtung, Rahmen |
+
 
 __*Beachte*__: Zeile 5 ist der linke Taster-Text, Zeile 6 ist der rechte Taster-Text. Der Taster-Text darf nur 4 Zeichen lang sein! Ist der Text leer, so wird das Tastersymbol nicht gezeichnet.
 

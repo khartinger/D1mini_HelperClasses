@@ -1,5 +1,5 @@
 # D1 mini: OLED class
-Version 2018-03-03   
+Version 2018-12-15   
 [German version](./oled_classes_LIESMICH.md "German version")   
 
 Using the class `Screen1` you can write text easily onto a 0.66" OLED Shield for D1 mini. 6 lines with 10 caracers a possible.   
@@ -11,12 +11,15 @@ The code is strongly based on Adafruit libs
 and is specially written for the D1 mini. You also can draw graphics or execute basic functions of the OLED.
 
 ## Usage
-To use the class `Screen1`, you just have to copy four files to the working directory:   
-`D1_class_Screen_64x48.h`, `D1_class_Screen_64x48.cpp`, `D1_class_Screen1.h` und `D1_class_Screen1.cpp`
+To use the class `Screen1`, you just have to copy four files to the working directory (or directory `src`):   
+`D1_class_Screen_64x48.h`, `D1_class_Screen_64x48.cpp`, `D1_class_Screen1.h` and `D1_class_Screen1.cpp`   
+NEW: Files with scroll funktion:   
+`D1_class_Screen_64x48.h`, `D1_class_Screen_64x48.cpp`, `D1_class_Screen1a.h` and `D1_class_Screen1a.cpp`   
+
 
 ## Screens
-### screen names
-screen names consist of the word `screen` followed by the number of text lines (6, 5, 4, 2, 1 or a combination like 221, 112, 13 12).    
+### Screen names
+Screen names consist of the word `screen` followed by the number of text lines (6, 5, 4, 4B, 2, 1 or a combination like 221, 112, 13 12).    
 Appending a `i` to the name inverts the line (black on white).   
 Appending a `Clear` to the name cleans the display before writing the text.   
 
@@ -28,6 +31,9 @@ Parameters
 _Examples_
 * `screen6iClear(1,"Demo",'c');`  ..... Clear display, then write the text "Demo" inverted in line 1 of a screen with 6 lines.    
 * `screen6(3,"Demo for",'l');`  ..... Write the text "Demo for" with aligh left in line 3 of a screen with 6 lines.    
+
+### Scrolling
+The screens _screen6_, _screen5_, _screen4_ and _screen4B_ located in the files  `D1_class_Screen1a.h` and `D1_class_Screen1a.cpp` allow scrolling of a text. Write the text in the next, invisible line. (Eg for screen6: line 7 and so on.)
 
 ### screen pictures
 **Simple screens: one area, 4 to 6 lines, simple high characters**    
@@ -138,8 +144,10 @@ __*Note*__: Screen names with i (like screen6i, screen5i and screen4i) do the sa
 | ------------------------------- | ---------------- |
 | + void screen4B (int line_, String text_)                    | write text to line 1...6, text align left, border  |
 | + void screen4B (int line_, String text_, char align_)       | write text to line 1...6, given text align, border |
-| + void screen4BClear (int line_, String text_)               | clear screen, write text to line 1...6, text align left, border  |
-| + void screen4BClear (int line_, String text_, char align_)  | clear screen, write text to line 1...6, given text align, border |
+| + void screen4BClear (int line_, String text_)               | clear screen line 1 to 4, write text to line 1...6, text align left, border  |
+| + void screen4BClear (int line_, String text_, char align_)  | clear screen line 1 to 4, write text to line 1...6, given text align, border |
+| + void screen4BClearAll (int line_, String text_)               | clear screen, write text to line 1...6, text align left, border  |
+| + void screen4BClearAll (int line_, String text_, char align_)  | clear screen, write text to line 1...6, given text align, border |
 
 __*Notice*__: Line 5 is the left button text, line 6 is the right button text. The button text can only be 4 characters long! If the button text is empty, the button symbol is not shown.
 
