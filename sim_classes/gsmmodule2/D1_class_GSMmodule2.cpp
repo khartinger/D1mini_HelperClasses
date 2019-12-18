@@ -135,7 +135,7 @@ String GSMmodule2::getsMem() { return mem_; }
 int GSMmodule2::setMem(String mem) {
  if((mem=="SM")||(mem=="ME")||(mem=="MT")) {
   mem_=mem;
-  if(mem_="ME") numOfSms1_=21; else numOfSms1_=1;
+  if(mem_=="ME") numOfSms1_=21; else numOfSms1_=1;
   sCmd="AT+CPMS=\""+mem_+"\",\""+mem_+"\",\""+mem_+"\"";
   sResult=sendCmd(sCmd,4);              // send command
   if(sResult.indexOf("OK")<0) status=GSMMOD2_ERR_CPMS;
@@ -150,9 +150,9 @@ int GSMmodule2::setMem(String mem) {
 int GSMmodule2::setNumOfSms1(int num1) {
  if(num1>0) { 
   numOfSms1_=num1;
-  status=status=GSMMOD2_OK;
+  status=GSMMOD2_OK;
  }
- else GSMMOD2_ERR_SNUM;
+ else status=GSMMOD2_ERR_SNUM;
  return status;
 }
 
