@@ -2,6 +2,7 @@
 // The class Screen096 extends the classes SSD1306Wire and
 // OLEDDisplay with screen methods to write text on the display.
 // * line number <0: display line inverted
+// * line 0 = line 1 with border
 // Also included in this file:
 // * a table to convert codepage 437 to utf8 and vice versa
 //   (table_cp437_utf8)
