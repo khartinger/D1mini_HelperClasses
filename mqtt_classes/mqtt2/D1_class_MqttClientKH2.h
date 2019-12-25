@@ -1,4 +1,4 @@
-//_____D1_class_MqttClientKH2.h_______________170721-191223_____
+//_____D1_class_MqttClientKH2.h_______________170721-191225_____
 // The class MqttClientKH2 extends class PubSubClient for
 //  easy use of mqtt.
 // You can use all commands of class PubSubClient as well.
@@ -33,7 +33,7 @@
 #define  MQTT_SIZE      20             // max.len mqttservername
 #define  TOPIC_MAX      8              // max. topics to sub
 #define  MQTT_RECONNECT_MS        4000
-#define  TIMEOUT_WIFI_CONNECT_MS  8000 // wait for WLAN
+#define  TIMEOUT_WIFI_CONNECT_MS  5000 // wait for WLAN
 #define  TOPIC_MAXLEN               48
 #define  PAYLOAD_MAXLEN            200
 #ifndef  DEBUG_MQTT

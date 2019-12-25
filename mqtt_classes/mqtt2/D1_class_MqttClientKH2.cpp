@@ -1,13 +1,14 @@
-//_____D1_class_MqttClientKH2.cpp______________170721-191223_____
+//_____D1_class_MqttClientKH2.cpp______________170721-191225_____
 // The class MqttClientKH2 extends class PubSubClient for
 //  easy use of mqtt.
 // You can use all commands of class PubSubClient as well.
 // When PubSubClient lib is installed,
 // delete PubSubClient files in directory src/mqtt
 // Created by Karl Hartinger, July 21, 2017.
-// Last changes: 2018-11-01 getMyIP() added
-//               2019-12-22 getsMac() added
-//               2019-12-23 WiFi and MQTT methods separated
+// Last changes: 2018-11-01 add getMyIP()
+//               2019-12-22 add getsMac()
+//               2019-12-23 separate WiFi and MQTT methods
+//               2019-12-25 update connectWiFiMQTT()
 // Hardware: D1 mini
 // Released into the public domain.
 
@@ -247,7 +248,11 @@ bool MqttClientKH2::connectWiFiMQTT()
  }
  if(DEBUG_MQTT)Serial.println("\nConnected! IP address is "+sMyIP);
  //-----connect to MQTT server----------------------------------
- PubSubClient::connect(sMQTTClientName.c_str());
+ if(connect(sMQTTClientName.c_str()))
+ {
+  if(sendPubSubTopics()) return true;  // send topic info
+ }
+ if(DEBUG_MQTT) {Serial.println("Topics failture, state: "+getsState());};
  return reconnect();
 }
 
