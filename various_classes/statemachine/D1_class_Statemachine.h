@@ -1,10 +1,11 @@
-﻿//_____D1_class_Statemachine.h________________181002-181019_____
+﻿//_____D1_class_Statemachine.h________________181002-200119_____
 // The class Statemachine helps to make a simple state counter.
 // It counts from 1 to state_max (incl.) and waits
 // state_delay milliseconds on every state.
 // Created by Karl Hartinger, October 02, 2018.
 // Modified 2018-10-05: some set/get added
-// Modified 2018-10-19: stateMin, add() added
+//          2018-10-19: stateMin, add() added
+//          2020-01-19: getBeginMillis() added
 // Released into the public domain.
 #ifndef D1_CLASS_STATEMACHINE_H
 #define D1_CLASS_STATEMACHINE_H
@@ -37,6 +38,7 @@ class Statemachine {
   int  getStateDelay();                //
   int  getState();                     //
   int  getDuration();                  //
+  unsigned long getBeginMillis();      //
   //-----working methods----------------------------------------
   int  loopBegin();                    //
   unsigned long loopEnd();             //
