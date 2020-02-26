@@ -19,8 +19,8 @@
 #define SMB_PIN                 D4     // pin number blue LED
 #define SMB_INVERT            true     // 0=LED on, 1 =LED off
 #define SMB_STATE_START          1     // 1. state: led on 
-#define SMB_STATES_ON            8     // 8x100ms = 0.8s
-#define SMB_STATES_OFF           2     // 2x100ms = 0.2s
+#define SMB_STATES_ON            2     // e.g. 2x100ms = 0.2s
+#define SMB_STATES_OFF           8     // e.g. 8x100ms = 0.8s
 #define SMB_BLINK_ENDLESS       -1     // -1=blink endless
 
 class StatemachineBlink {
