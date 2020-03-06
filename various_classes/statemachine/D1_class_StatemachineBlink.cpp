@@ -1,4 +1,4 @@
-﻿//_____D1_class_StatemachineBlink.cpp_________200224-200303_____
+﻿//_____D1_class_StatemachineBlink.cpp_________200224-200306_____
 // The class StatemachineBlink helps to blink a LED in a state 
 // machine. You need to know...
 // ... the pin number, where the LED is wired (e.g. D4)
@@ -7,9 +7,12 @@
 // ... the duration for LED is on (in states)
 // ... the duration for LED is off (in states)
 // ... the number of blinks (-1 = endless)
+// if statesOn_ =0, the blue LED is turned off continuously
+// if statesOff_=0, the blue LED is turned on  continuously
 // Created by Karl Hartinger, February 24, 2020.
 // Modified 2020-02-28 setStateStart() added
 //          2020-03-03 goOn() added
+//          2020-03-06 on() added
 // Released into the public domain.
 
 #include "D1_class_StatemachineBlink.h"
@@ -110,6 +113,8 @@ void StatemachineBlink::setParams(int stateStart, int statesOn,
 int StatemachineBlink::doBlink(Statemachine stm)
 {
  if(off_) return 0;
+ if(statesOn_ ==0) { setLed(false); return 0; }
+ if(statesOff_==0) { setLed(true); return 0; }
  int state=stm.getState();
  if(SMB_DEBUG) { Serial.print("SMB doBlink: state=");Serial.print(state);}
  //-----start blinking?-----------------------------------------
@@ -151,7 +156,15 @@ void StatemachineBlink::off(Statemachine stm) {
  stateOff_=stm.getState();
  off_=true; 
  ledBeforeOff_=ledIsOn_;
- setLed(false);                       // led off
+ setLed(false);                        // led off
+}
+
+//_____turn blinking on_________________________________________
+void StatemachineBlink::on(Statemachine stm) {
+ stateOff_=stm.getState();
+ off_=true; 
+ ledBeforeOff_=ledIsOn_;
+ setLed(true);                         // led on
 }
 
 //_____allow blinking again_____________________________________
