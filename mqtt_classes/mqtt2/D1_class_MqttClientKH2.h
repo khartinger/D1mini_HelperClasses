@@ -1,13 +1,16 @@
-//_____D1_class_MqttClientKH2.h_______________170721-191225_____
+//_____D1_class_MqttClientKH2.h_______________170721-200405_____
 // The class MqttClientKH2 extends class PubSubClient for
 //  easy use of mqtt.
 // You can use all commands of class PubSubClient as well.
 // When PubSubClient lib is installed,
 // delete PubSubClient files in directory src/mqtt
 // Created by Karl Hartinger, July 21, 2017.
-// Last changes: 2018-11-01 getMyIP() added
-//               2019-12-22 getsMac() added
-//               2019-12-23 WiFi and MQTT methods separated
+// Changes:
+// 2018-11-01 add getMyIP()
+// 2019-12-22 add getsMac()
+// 2019-12-23 separate WiFi and MQTT methods
+// 2019-12-25 update connectWiFiMQTT()
+// 2020-04-05 add isMQTTConnectedNew(), MQTT timeout 3sec
 // Hardware: D1 mini
 // Released into the public domain.
 
@@ -32,7 +35,7 @@
 #define  PASS_SIZE      20             // max.len password
 #define  MQTT_SIZE      20             // max.len mqttservername
 #define  TOPIC_MAX      8              // max. topics to sub
-#define  MQTT_RECONNECT_MS        4000
+#define  MQTT_RECONNECT_MS         100
 #define  TIMEOUT_WIFI_CONNECT_MS  5000 // wait for WLAN
 #define  TOPIC_MAXLEN               48
 #define  PAYLOAD_MAXLEN            200
@@ -59,6 +62,8 @@ class MqttClientKH2 : public PubSubClient {
   long   millisLastConnected;          // last connection time [ms]
   bool   wifiConnectedNew;             // internal usage
   bool   wifiConnectedNewExtern;       // external usage
+  bool   mqttConnectedNew;             // internal usage
+  bool   mqttConnectedNewExtern;       // external usage
  //-----constructor & co----------------------------------------
  public:
   MqttClientKH2();
@@ -82,6 +87,7 @@ class MqttClientKH2 : public PubSubClient {
   bool   WiFiSetup();                    // called by setup()
   bool   isWiFiConnected();              // is connected to WiFi
   bool   isWiFiConnectedNew();           // is new WiFi connection
+  bool   isMQTTConnectedNew();           // is new connected MQTT
   String getsSignal();                   // WiFi signal strength
   //-----methods for mqtt connection----------------------------
   bool   isConnected();                  //MUST always be called

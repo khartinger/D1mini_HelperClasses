@@ -1,14 +1,16 @@
-//_____D1_class_MqttClientKH2.cpp______________170721-191225_____
+//_____D1_class_MqttClientKH2.cpp______________170721-200405_____
 // The class MqttClientKH2 extends class PubSubClient for
 //  easy use of mqtt.
 // You can use all commands of class PubSubClient as well.
 // When PubSubClient lib is installed,
 // delete PubSubClient files in directory src/mqtt
 // Created by Karl Hartinger, July 21, 2017.
-// Last changes: 2018-11-01 add getMyIP()
-//               2019-12-22 add getsMac()
-//               2019-12-23 separate WiFi and MQTT methods
-//               2019-12-25 update connectWiFiMQTT()
+// Changes:
+// 2018-11-01 add getMyIP()
+// 2019-12-22 add getsMac()
+// 2019-12-23 separate WiFi and MQTT methods
+// 2019-12-25 update connectWiFiMQTT()
+// 2020-04-05 add isMQTTConnectedNew(), MQTT timeout 3sec
 // Hardware: D1 mini
 // Released into the public domain.
 
@@ -63,6 +65,8 @@ void MqttClientKH2::setup()
  sMQTTClientName+=String(random(0xffff), HEX);
  wifiConnectedNew=true;
  wifiConnectedNewExtern=true;
+ mqttConnectedNew=true;
+ mqttConnectedNewExtern=true;
  WiFiSetup();
  setServer(mqtt_, port_);
 }
@@ -166,6 +170,7 @@ bool MqttClientKH2::isWiFiConnected()
  //-----client NOT connected to WiFi----------------------------
  wifiConnectedNew=true;
  wifiConnectedNewExtern=true;
+ 
  //newConnected=true;
  return false;
 }
@@ -178,6 +183,17 @@ bool MqttClientKH2::isWiFiConnectedNew()
   return true;
  }
  wifiConnectedNewExtern=false;
+ return false;
+}
+
+//_____is MQTT new connected?___________________________________
+bool MqttClientKH2::isMQTTConnectedNew()
+{
+ if(mqttConnectedNew || mqttConnectedNewExtern) {
+  mqttConnectedNewExtern=false;
+  return true;
+ }
+ mqttConnectedNewExtern=false;
  return false;
 }
 
@@ -198,15 +214,24 @@ bool MqttClientKH2::isConnected()
 {
  long now = millis();
  //-----WiFi connected?-----------------------------------------
+ mqttConnectedNew=false;
  if(!isWiFiConnected()) return false;
  //-----check for mqtt connection-------------------------------
  if (!connected())
  {
-  if(DEBUG_MQTT) Serial.println("WiFi ok, MQTT not connected");
+  if(DEBUG_MQTT) { 
+   Serial.print("WiFi ok, MQTT not connected: Error ");
+   Serial.println(getsState());
+  }
   if (now - millisLastConnected > MQTT_RECONNECT_MS) 
   {
    millisLastConnected=now;
-   if(reconnect()) millisLastConnected=0;
+   if(reconnect()) { 
+    millisLastConnected=0;
+    mqttConnectedNew=true;
+    mqttConnectedNewExtern=true;
+    for(int i=0; i<numSub_; i++) subscribeString(aTopicSub_[i]);
+   }
   }
  }
  //-----if connected to broker, do loop function----------------
@@ -261,11 +286,10 @@ bool MqttClientKH2::reconnect()
 {
  //-----when connected, return----------------------------------
  if(PubSubClient::connected()) { return true; }
- if(DEBUG_MQTT) Serial.println("reconnect...");
  //-----WiFi connected?-----------------------------------------
  if(!isWiFiConnected()) return false;  // no WiFi
  //-----WiFi yes, mqtt no---------------------------------------
- if(DEBUG_MQTT)Serial.println("MQTT: Not connected - reconnect...");
+ if(DEBUG_MQTT)Serial.println("WiFi ok, no MQTT - reconnect...");
  if(!PubSubClient::connect(sMQTTClientName.c_str())) return false;
  //-----MQTT: try to send all PubSub topics---------------------
  if(!sendPubSubTopics())
@@ -294,7 +318,8 @@ bool MqttClientKH2::sendPubSubTopics()
   //-----Once connected, publish an announcement----------------
   for(int i=0; i<numPub_; i++)
   {
-   publishString(aTopicPub_[i], aPayloadPub_[i], aRetainPub_[i]);
+   if(aPayloadPub_[i].length()>0)
+    publishString(aTopicPub_[i], aPayloadPub_[i], aRetainPub_[i]);
   }
   //.....and resubscribe.......................................
   for(int i=0; i<numSub_; i++)
