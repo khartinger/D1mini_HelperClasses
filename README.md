@@ -1,9 +1,9 @@
 # Comfortable and simple D1 mini helper classes
-Sketch: -, Version 2019-01-09   
+Sketch: -, Version 2020-12-10   
 [Deutsche Version](./LIESMICH.md "Deutsche Version")   
 
 This repository contains a lot of helper classes for the Wemos D1 mini.    
-Example programs for how to use the classes see repository `D1mini_oop`.
+Application examples for these classes can be found in the repository `D1mini_oop`, among others.   
 
 __*How to use the classes*__   
 1. Make a directory `src` inside the (Arduino) working directory.   
@@ -36,33 +36,36 @@ Every directory contains some classes for controlling a EPD by SPI or over a IS6
 | epd_i2c_0154bw    | class Epd_ for 2-color 1.54 inch EPD (200x200 black-white) and IS602 bridge |
 | epd_i2c_ 0290bw   | class Epd_ for 2-color 2.90 inch EPD (296x128 black-white) and IS602 bridge |
 
-###Epd font editor   
+### Epd font editor   
 The directory epd_fonteditor contains ods-files to generate your own characters for a  e-paper display.   
 Character sizes: 16x8, 20x11 and 24x11.   
 
-###Font directory
+### Font directory
 The directory `epd_fonts` contains the file `fonts.h`and c files with fonts for electronic paper displays (EPD) with different char sizes:     
 __ASCII values 32..127__: font8.c (8x5), font12.c (12x7), font16.c (16x11), font20.c (20x14), font24.c (24x17); font_20x11.c (20x11), font_24x11.c (24x11)    
 __ASCII values 32..255__: font16x8_255.c (16x8), font20x11_255.c (20x11), font_24x11_255.c (24x11)   
 __ASCII values 32..255, characters in program memory__: pmfont_24x11_255.c (24x11)   
 
-###Directory "images"   
+### Directory "images"   
 The directory contains some picures.
 
-###Input/output classes
-| class   | purpose                             |
-|---------|-------------------------------------|
-| Ain     | analog input &nbsp; (Default: Pin A0)                 |
-| Din     | digital input &nbsp; (Default: Button at D3)         |
-| Dout    | digital output (Default: blue LED on D1mini) &nbsp;  |
+### Input/output classes
+| class    | purpose                             |
+|----------|-------------------------------------|
+| Ain      | analog input &nbsp; (Default: Pin A0)                |
+| Din      | digital input &nbsp; (Default: Button at D3)         |
+| Dout     | digital output (Default: blue LED on D1mini) &nbsp;  |
+| relay2   | switch a relay on | off | toggle   |   
 
-###MQTT classes 
+### MQTT classes 
 | class          | purpose                      |
 |----------------|------------------------------|
 | PubSubClient    | class to send and receive MQTT messages by WLAN |   
 | MqttClientKH    | Extension of class `PubSubClient` for easy data transmission |   
+| MqttClientKH2   | Various improvements of the class `MqttClientKH` (e.g. separation of WiFi and MQTT methods)   |   
+| SimpleMqtt      | Extension of the class `PubSubClient` for easy creation of MQTT applications for D1mini and ESPD1mini. A base topic is defined, actions are performed via /get, and /set messages and responses are sent back via /ret-topics.   |   
 
-###OLED classes
+### OLED classes
 OLED classes are used to display text on a 0.66" D1 mini OLED shield (SSD1306, 64x48, I2C, 7bit-address 0x3C or 0x3D). Only 6 lines with 10 chars can be displayed.   
 Special: char(158) = Euro sign instead of Pt (Pesetas) (158=9E)   
 The code is strongly based on Adafruit libs   
@@ -76,7 +79,8 @@ Use this class, if you have problems with the Adafruit classes especially after 
 |--------------|----------|
 | Screen1      | class to display text on a 0.66" OLED shield.  |   
 | Screen1a     | Extended class `Screen1` for scrolling. |   
-| Screen_64x48 | Basic functions for OLED shield 0.66" 64x48 pixel. |
+| Screen_64x48 | Basic functions for OLED shield 0.66" 64x48 pixel. |   
+| Screen096    | class to display text on a 0.96" OLED shield.  |   
 
 _Examples_
 * `screen6(3,"Demo",'l');`  ..... Write the text "Demo" with align left in line 3 of a screen with 6 lines.    
@@ -90,7 +94,7 @@ The screens _screen6_, _screen5_, _screen4_ and _screen4B_ located in the files 
 Directory `oled_fonteditor` contains ods-files to create your own characters for a OLED.   
 Character size(s): 5x8.   
 
-###Sensor classes
+### Sensor classes
 | class    | purpose                        |
 |----------|--------------------------------|
 | AM2322   |  Class for temperature and humidity i2c sensor AM2322.   <br>Temperature -40&deg;..+80&deg;C, +-0,5&deg;C/+-0,2&deg;C, 16bit; Humidity 0%..99,0%, +-3%/+-0,1%, 16bit. Default i2c address is 0x5C. |
@@ -98,7 +102,7 @@ Character size(s): 5x8.
 | BME280   | Class for temperature, humidity and pressure/altitude i2c sensor BME280.   <br>Temperature -40&deg;C...85&deg;C +-1&deg;, 0,01&deg;C resolution, humidity 0%...100% +-3%RH absolut, 0,008%RH resolution, pressure 300...1100hPa +-1,0hPa. Default i2c address is 0x76 (other 0x77). |
 | SHT30    | Class for temperature and humidity i2c sensor SHT30.   <br>Temperature -40&deg;C...125&deg;C +-0,7% (0&deg;..+65&deg;C, +-0,3&deg;C),     Humidity  +-3%RH. Default i2c address is 0x45 (other 0x44). |
 
-###SIM classes
+### SIM classes
 
 | class         | purpose                        |
 |---------------|--------------------------------|
@@ -106,7 +110,7 @@ Character size(s): 5x8.
 | GSMmodule0    | D1 mini class for sending and receiving SMS with a SIM800C GSM GPRS module STM32.   <br>Select software or hardware serial by #define-command in file `D1_class_GSMmodule0.h`:   <br>`#define GSMMOD_SWS true //software serial`<br>Advantage: hardware serial needs less memory after compiling. Disadvantage: You have to edit file `D1_class_GSMmodule0.h` |
 | GSMmodule     | D1 mini class for sending and receiving SMS with a SIM800C GSM GPRS module STM32.   <br>Select software or hardware serial by constructor: No value or `true` selects software serial (D5=Tx, D6=RX), `false` selects hardware serial.   <br>Class directory also contains source code for software serial. |     
 
-###Miscellaneous classes 
+### Miscellaneous classes 
 | class         | purpose                             |
 |---------------|-------------------------------------|
 | statemachine  | class to create a statemachine.   <br>Examples for methodes:<br> `Statemachine statemachine(STATE_MAX, STATE_DELAY);`, `int state=loopBegin();`, `switch(state)`, `unsigned long duration=loopEnd();` |   
