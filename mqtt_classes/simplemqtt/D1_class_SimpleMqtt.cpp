@@ -1,4 +1,4 @@
-//_____D1_class_SimpleMqtt.cpp________________200705-201219_____
+//_____D1_class_SimpleMqtt.cpp________________200705-200110_____
 // The SimpleMqtt class is suitable for D1 mini (ESP8266) and 
 // and ESP32 D1mini and extends the PubSubClient class to make
 // MQTT easy to use.
@@ -46,6 +46,7 @@
 // 2020-12-19 connectMQTT(): add line 2 if(!isWiFiConnected...
 //            EEPROM: add eeprom...myData()
 // 2021-01-03 add retained functionality
+// 2021-01-10 TOPIC_MAX changed to 16
 // Hardware: D1 mini OR ESP32 D1mini
 // Released into the public domain.
 
