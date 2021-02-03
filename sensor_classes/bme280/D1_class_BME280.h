@@ -1,13 +1,19 @@
-﻿//_____D1_class_BME280.h______________________180326-181102_____
+﻿//_____D1_class_BME280.h______________________180326-200202_____
 // D1 mini class for temperature, humidity and pressure/altitude 
 // sensor BME280.
 // * temperature -40°C...85°C +-1°, 0,01°C resolution
 // * humidity    0%...100% +-3%RH absolut, 0,008%RH resolution
 // * pressure    300...1100hPa +-1,0hPa 
 // Default i2c address is 0x76 (other 0x77)
+// Note
+// * begin(true) starts the I2C bus (calls Wire.begin()).
+// * Use begin() or begin(false) if the I2C bus has already
+//   been started.
 // Code based on Adafruit_BME280.h/.cpp and SparkFunBME280.h/.cpp
 // Created by Karl Hartinger, October 27, 2018.
-// Last Change 181102: add setAddress(), getAddress(), getID()
+// Updates:
+// 181102 add setAddress(), getAddress(), getID()
+// 210202 add bNewBegin, begin(startI2C); setup(), getSensorName
 // Released into the public domain.
 
 #ifndef D1_CLASS_BME280_H
@@ -42,6 +48,7 @@
 #define BME280_ERR_NO_MEAS   10   // no measure until now
 #define BME280_ERR_ID        11   // wrong id
 #define BME280_ERR_RESET     12   // reset error
+#define BME280_ERR_BMP180    13   // wrong device BMP180
 
 //-----register-------------------------------------------------
 #define BME280_REG_DIG_T1    0x88
@@ -83,6 +90,7 @@
 //-----register content-----------------------------------------
 #define BME280_CHIPID        0x60 //Chip ID BME280
 #define BMP280_CHIPID        0x58 //Chip ID BMP280 (no hum)
+#define BMP180_CHIPID        0x55 //Chip ID BMP180 (no hum)
 #define BME280_RESET         0xB6 //Write 0xB6 resets device
 
 //-----parts of register content--------------------------------
@@ -147,9 +155,10 @@ typedef struct
 class BME280 {
  //-----properties----------------------------------------------
  protected:
-  int i2cAddress;                 // i2c address
-  int status;                     // state of measuring
-  unsigned long nextMeasuring_;   // time of next measuring [ms]
+  int    i2cAddress;              // i2c address
+  int    status;                  // state of measuring
+  bool   bNewBegin;               // true = first start
+  unsigned long lastMeasuring_;   // time of last measuring [ms]
   unsigned long waitMeasuring_;   // waiting time between 2 meas
   int32_t iHum_;                  // humidity [%]
   int64_t iPre_;                  // pressure [pascal]
@@ -173,7 +182,8 @@ class BME280 {
   bool   setParams(bme280_mode mode, bme280_sampling temp,
           bme280_sampling pres,bme280_sampling humi,
           bme280_filter filter, bme280_standby  standby);
-  bool   begin();                 // checkID, reset, set regs
+  bool   begin();                 // startI2C=true
+  bool   begin(bool startI2C);    // checkID, reset, set regs
   bool   softReset();             // soft reset (set IIR off...)
  protected:
   bool   checkID();               // must be 0x60 or 0x58
@@ -183,9 +193,11 @@ class BME280 {
  public:
   void   setWaitMeasuring(unsigned long wait_ms);
   int    getAddress();            // return i2c address
-  int    getID();                 // 0x60=BME280, 0x58=BMP280
+  int    getID();                 // 0x60 (BME280)|0x58 (BMP280)
+  String getSensorName();         // BME280 | BMP280 | Unknown 
   int    getStatus();             // status as int (0=OK)
-  String getsStatus();            // status as german text
+  String getsStatus();            // status as text
+  String getsStatusGerman();      // status as german text
   int    getValues(float &temperature, float &humidity, 
                    float &pressure,    float &altitude);
   String getsValues();            // values as String separated by ,
@@ -200,8 +212,9 @@ class BME280 {
   float  getAltitude();           // altitude or BME280_ERR_FLOAT
   String float2String(float f, int len, int decimals);
  //-----helper functions----------------------------------------
+ public:
+  bool     measuring();           // read values from sensor
  protected:
-  void     measuring();           // read values from sensor
  //-----helper functions: i2c-access----------------------------
   bool     write8(byte reg, byte value); // write 1 byte
   uint8_t  read8(byte reg);       // read 1 byte
