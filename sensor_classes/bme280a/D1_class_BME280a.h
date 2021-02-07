@@ -180,7 +180,7 @@ class BME280 {
   void   setup();                 // init properties
  //------setter methods-----------------------------------------
  public:
-  void   setAddress(int i2c_address);
+  bool   setAddress(int i2c_address);
   void   setWaitMeasuring(unsigned long wait_ms);
   bool   setParams(bme280_mode mode, bme280_sampling temp,
           bme280_sampling pres,bme280_sampling humi,

@@ -56,11 +56,12 @@ void BME280::setup()
 //**************************************************************
 
 //_______set i2c address________________________________________
-void BME280::setAddress(int i2c_address)
+bool BME280::setAddress(int i2c_address)
 {
- if((i2c_address==0x76)||(i2c_address==0x77)) 
-  i2cAddress=i2c_address; 
+ if((i2c_address!=0x76)&&(i2c_address!=0x77)) return false;
+ i2cAddress=i2c_address; 
  setup();
+ return true;
 }
 
 //_______set waiting time between two measurements in ms________
