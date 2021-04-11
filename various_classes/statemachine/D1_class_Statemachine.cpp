@@ -10,6 +10,8 @@
 // 2020-02-25 getStateMin() added
 // 2020-03-03 add(..,..), diff() added
 // 2020-04-05 add getBeginMillis()
+// 2021-01-31 state: change int to int32_t
+// 2021-04-11 add isDelayed(), delayed (ms)
 // Released into the public domain.
 #include "D1_class_Statemachine.h"
 
@@ -20,7 +22,7 @@
 //_____constructor______________________________________________
 Statemachine::Statemachine() { setup(); }
 
-Statemachine::Statemachine(int state_max, int state_delay)
+Statemachine::Statemachine(int32_t state_max, int32_t state_delay)
 {
  setup();
  setStateMax(state_max);
@@ -28,11 +30,11 @@ Statemachine::Statemachine(int state_max, int state_delay)
  stateCounter=stateMin;
 }
 
-Statemachine::Statemachine(int state_min, int state_max, int state_delay)
+Statemachine::Statemachine(int32_t state_min, int32_t state_max, int32_t state_delay)
 {
  setup();
  if(state_min>state_max) 
-  { int temp=state_min; state_min=state_max; state_max=temp; }
+  { int32_t temp=state_min; state_min=state_max; state_max=temp; }
  stateMin=state_min;
  stateMax=state_max;
  setStateDelay(state_delay);
@@ -46,6 +48,7 @@ void Statemachine::setup() {
  stateDelay=STATE_DELAY_DEFAULT;
  stateCounter=stateMin;
  beginMillis=millis();
+ delayed=0;
 }
 
 //**************************************************************
@@ -53,7 +56,7 @@ void Statemachine::setup() {
 //**************************************************************
 
 //_____set first state (=minimum), if <= state maximum__________
-bool Statemachine::setStateMin(int state_min)
+bool Statemachine::setStateMin(int32_t state_min)
 {
  if(state_min<=stateMax){
   stateMin=state_min; 
@@ -64,7 +67,7 @@ bool Statemachine::setStateMin(int state_min)
 }
 
 //_____set last state (=maximum), if >= state minimum___________
-bool Statemachine::setStateMax(int state_max)
+bool Statemachine::setStateMax(int32_t state_max)
 {
  if(state_max>=stateMin){
   stateMax=state_max; 
@@ -75,16 +78,16 @@ bool Statemachine::setStateMax(int state_max)
 }
 
 //_____set state delay (if >=0)_________________________________
-bool Statemachine::setStateDelay(int state_delay)
+bool Statemachine::setStateDelay(int32_t state_delay)
 {
  if(stateDelay>=0) { stateDelay=state_delay; return true; }
  return false;
 }
 
 //_____set state (convert to range stateMin...stateMax)_________
-bool Statemachine::setState(int new_state)
+bool Statemachine::setState(int32_t new_state)
 {
- int numberAllStates=stateMax-stateMin+1;
+ int32_t numberAllStates=stateMax-stateMin+1;
  //-----transform new_state to range stateMin...stateMax--------
  if(new_state>stateMax) new_state=stateMin+((new_state-stateMax-1)%numberAllStates);
  if(new_state<stateMin) new_state=stateMax-((stateMin-new_state-1)%numberAllStates);
@@ -96,12 +99,12 @@ bool Statemachine::setState(int new_state)
 //     get values
 //**************************************************************
 
-int Statemachine::getStateMin()   { return stateMin; }
-int Statemachine::getStateMax()   { return stateMax; }
-int Statemachine::getStateDelay() { return stateDelay; }
-int Statemachine::getState()      { return stateCounter; }
-int Statemachine::getDuration() {return(millis()-beginMillis);}
-unsigned long Statemachine::getBeginMillis(){ return beginMillis; } 
+int32_t Statemachine::getStateMin()   { return stateMin; }
+int32_t Statemachine::getStateMax()   { return stateMax; }
+int32_t Statemachine::getStateDelay() { return stateDelay; }
+int32_t Statemachine::getState()      { return stateCounter; }
+int32_t Statemachine::getDuration() {return(millis()-beginMillis);}
+uint32_t Statemachine::getBeginMillis(){ return beginMillis; } 
 
 //**************************************************************
 //     working methods
@@ -109,7 +112,7 @@ unsigned long Statemachine::getBeginMillis(){ return beginMillis; }
 
 //_____use this at the beginning of the loop-function___________
 // returns the number of the actual state
-int Statemachine::loopBegin()
+int32_t Statemachine::loopBegin()
 {
  beginMillis=millis();                 // get start "time"
  return stateCounter;
@@ -117,23 +120,32 @@ int Statemachine::loopBegin()
 
 //_____use this at the end of the loop-function_________________
 // increases state number and returns duration of last state
-unsigned long Statemachine::loopEnd()
+uint32_t Statemachine::loopEnd()
 {
  stateCounter=this->add(1);
- unsigned long endMillis=millis();
- unsigned long duration=0xFFFFFFFF;    // -1=0xFFFFFFFF
+ uint32_t endMillis=millis();
+ uint32_t duration=0xFFFFFFFF;    // -1=0xFFFFFFFF
+ //------duration of this state---------------------------------
  if(endMillis>=beginMillis) duration=endMillis-beginMillis;
  else duration=endMillis+(duration-beginMillis);
- unsigned long loopDelay=0;
- if(stateDelay>duration) loopDelay=stateDelay-duration;
- delay(loopDelay);                     // wait
+ uint32_t loopDelay=0;
+ if(stateDelay>(duration+delayed))
+ {//-----wait a little bit--------------------------------------
+  loopDelay=stateDelay-duration-delayed;
+  delay(loopDelay);                     // wait
+  delayed=0;
+ } 
+ else 
+ {//-----state delayed------------------------------------------
+  delayed+=duration-stateDelay;
+ }
  return duration;
 }
 
 //_____Add a number of states to actual state___________________
 // return: the new state number
 // Note: Method does NOT change the stateCounter!
-int Statemachine::add(int numberOfStates)
+int32_t Statemachine::add(int32_t numberOfStates)
 {
  return add(stateCounter, numberOfStates);
 }
@@ -141,11 +153,11 @@ int Statemachine::add(int numberOfStates)
 //_____Add a number of states to given state____________________
 // return: the new state number
 // Note: Method does NOT change the stateCounter!
-int Statemachine::add(int state, int numberOfStates)
+int32_t Statemachine::add(int32_t state, int32_t numberOfStates)
 {
- int ret=state;
+ int32_t ret=state;
  if(numberOfStates==0) return ret;
- int numberAllStates=stateMax-stateMin+1;
+ int32_t numberAllStates=stateMax-stateMin+1;
  if(numberOfStates<0) 
   numberOfStates=numberAllStates-(-numberOfStates)%numberAllStates;
  //-----transform state to range stateMin...stateMax------------
@@ -168,13 +180,19 @@ int Statemachine::add(int state, int numberOfStates)
 // stateCounter=16, old_state=12: diff=16-12=4
 // stateCounter=12, old_state=16: diff=12-16+(17-11+1)=3
 // on error: return -1;
-int Statemachine::diff(int oldState)
+int32_t Statemachine::diff(int32_t oldState)
 {
- int numberAllStates=stateMax-stateMin+1; 
+ int32_t numberAllStates=stateMax-stateMin+1; 
  //-----transform oldState to range stateMin...stateMax---------
  if(oldState>stateMax) oldState=stateMin+((oldState-stateMax-1)%numberAllStates);
  if(oldState<stateMin) oldState=stateMax-((stateMin-oldState-1)%numberAllStates);
- int ret=stateCounter-oldState;
+ int32_t ret=stateCounter-oldState;
  if(ret>=0) return ret;
  return ret+numberAllStates;
+}
+
+//_____is start of this state delayed?__________________________
+bool Statemachine::isDelayed() { 
+ if(delayed==0) return false;
+ return true;
 }

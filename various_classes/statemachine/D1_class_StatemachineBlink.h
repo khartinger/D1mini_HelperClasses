@@ -27,7 +27,7 @@
 #define SMB_STATES_ON            2     // e.g. 2x100ms = 0.2s
 #define SMB_STATES_OFF           8     // e.g. 8x100ms = 0.8s
 #define SMB_BLINK_ENDLESS       -1     // -1=blink endless
-#define SMB_STATE_INVALID      NAN     // invalid state
+#define SMB_STATE_INVALID       -1     // invalid state
 class StatemachineBlink {
  protected:
   //-----properties---------------------------------------------

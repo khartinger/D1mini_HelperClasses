@@ -10,6 +10,8 @@
 // 2020-02-25 getStateMin() added
 // 2020-03-03 add(..,..), diff() added
 // 2020-04-05 add getBeginMillis()
+// 2021-01-31 state: change int to int32_t
+// 2021-04-11 add isDelayed(), delayed (ms)
 // Released into the public domain.
 #ifndef D1_CLASS_STATEMACHINE_H
 #define D1_CLASS_STATEMACHINE_H
@@ -20,36 +22,38 @@
 class Statemachine {
  protected:
   //-----properties---------------------------------------------
-  int stateCounter;                    // counts from min to max
-  int stateMin;                        // 1st counter value
-  int stateMax;                        // last vounter value
-  int stateDelay;                      // delay for one state
-  unsigned long beginMillis;           // start time of state
+  int32_t  stateCounter;               // counts from min to max
+  int32_t  stateMin;                   // 1st counter value
+  int32_t  stateMax;                   // last vounter value
+  uint32_t stateDelay;                 // delay for one state
+  uint32_t beginMillis;                // start time of state
+  uint32_t delayed;                    // state delayed in ms
  public:
   //-----constructor & co---------------------------------------
   Statemachine();                      // use default values
-  Statemachine(int state_max, int state_delay);
-  Statemachine(int state_min, int state_max, int state_delay);
+  Statemachine(int32_t state_max, int32_t state_delay);
+  Statemachine(int32_t state_min, int32_t state_max, int32_t state_delay);
  protected:
   void setup();                        // setup properties
  public:
   //-----set values---------------------------------------------
-  bool setStateMin(int state_min);     //
-  bool setStateMax(int state_max);     //
-  bool setStateDelay(int state_delay); //
-  bool setState(int new_state);        //
+  bool setStateMin(int32_t state_min); //
+  bool setStateMax(int32_t state_max); //
+  bool setStateDelay(int32_t state_delay); //
+  bool setState(int32_t new_state);    //
   //-----get values---------------------------------------------
-  int  getStateMin();                  //
-  int  getStateMax();                  //
-  int  getStateDelay();                //
-  int  getState();                     //
-  int  getDuration();                  //
-  unsigned long getBeginMillis();      //
+  int32_t  getStateMin();              //
+  int32_t  getStateMax();              //
+  int32_t  getStateDelay();            //
+  int32_t  getState();                 //
+  int32_t  getDuration();              //
+  uint32_t getBeginMillis();           //
   //-----working methods----------------------------------------
-  int  loopBegin();                    //
-  unsigned long loopEnd();             //
-  int  add(int numberOfStates);        // return(stateCounter+num)
-  int  add(int state, int numberOfStates); // return(state+num)
-  int  diff(int oldState);             // return(stateCounter-old)
+  int32_t  loopBegin();                //
+  uint32_t loopEnd();                  //
+  int32_t  add(int32_t numberOfStates);// return(stateCounter+num)
+  int32_t  add(int32_t state, int32_t numberOfStates); // return(state+num)
+  int32_t  diff(int32_t oldState);     // return(stateCounter-old)
+  bool     isDelayed();                //
 };
 #endif
