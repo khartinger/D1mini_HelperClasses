@@ -1,8 +1,9 @@
 //_____D1_class_Buzzer1.h________________________khartinger_____
-// The Buzzer1 class for the D1mini is used to output 
-// tones and melodies.
+// The Buzzer1 class for the D1mini or ESP32-D1mini is used to 
+// output tones and melodies.
 // In order not to block the main loop during the sound output,
-// it uses the timer interrupt for sound output.
+// it uses the sound function (for PWM tone frequency) and 
+// timer interrupt (for duration) for sound output.
 // The software is based on a Arduino Melody Player by ericBcreator.
 // https://www.hackster.io/ericBcreator/a-m-p-arduino-music-player-8013b6
 // commands:
@@ -10,7 +11,7 @@
 //       2, 4, 8, 16, 32 dotted (or 3, 6, 12, 24, 48),
 //       4, 8, 16, 32 triplet 34, 38, 316, 332
 //       defaults to Ln if n is omitted
-// Rn    rest, n = note length. defaults to Ln if n is omitted
+// Rn    rest, n = note length. Uses Ln if n is omitted
 // Tn    tempo n = 32-255 (default is 120 BPM, 4/4 time base)
 // On    octave n = 1-8 (default is 4)
 // Ln    n = default note length (default is 4, quarter note)
@@ -35,30 +36,35 @@
 // Hardware: 1. WeMos D1 Mini
 //           2. Buzzer Shield (@ D5)
 // Created by Karl Hartinger, June 06, 2021.
-// Changes: -
+// Changes:
+// 2021-11-22 add ESP32D1mini timer and sound handling
 // Released into the public domain.
 
 #ifndef D1_CLASS_BUZZER1_H
 #define D1_CLASS_BUZZER1_H
-extern "C" {
-#include "user_interface.h"                 // os_timer_t
-}
 #include "Arduino.h"                        // D1, String, ...
 #include <iostream>                         // cout
 
 //_______defines________________________________________________
 #if defined(ESP32) || defined(ESP32D1)
- #define DEFAULT BUZZER_PIN  18             // D5=18
+ #define DEFAULT_BUZZER_PIN  18             // D5=18
 #else
  #define DEFAULT_BUZZER_PIN  D5             // D5=18
+ extern "C" {
+ #include "user_interface.h"                // os_timer_t
+ }
 #endif
 
-#define DEBUG_B              true // false
+#define DEBUG_B              false // true // false
 #define DEFAULT_TEMPO        120            // 120 beats/minute
 #define DEFAULT_OCTAVE       4              // octave #4
 #define DEFAULT_NOTELENGTH   4              // quarter note
 #define DEFAULT_NOTELENTYPE  0              // 0: normal 7/8
 #define DEFAULT_TRANSPOSE    0              // note up/down in pitch
+#define TIMER32_NUM          0              // 0..3
+#define TIMER32_PRESCALER    8000           // 80MHz: 80=1us
+#define TIMER32_EDGE         true           // true=rising edge
+#define BUZZER_CHANNEL       0              // 0..
 
 class Buzzer1 {
  //======properties=============================================
@@ -75,7 +81,14 @@ class Buzzer1 {
   int              imaxf_;                  // max. index of f array
   int              imaxd_;                  // max. index of d array
   int              numNotes_;               // number of notes
+#if defined(ESP32) || defined(ESP32D1)
+  int              timer32Num_;             // timer number 0..3
+  int              buzzerChannel_;          // PWM channel 0..15
+  hw_timer_t       *pMyTimer;               // pointer to timer var
+  void             (*pISR)();               // pointer to ISR
+#else
   os_timer_t       myTimer;                 // timer object
+#endif
   bool             finished_;                // playback finished
   //.....general melody parameter (d=duration, f=frequency).....
   unsigned char    d_tempo;                 // BPM=beats/minute (120)
@@ -101,12 +114,14 @@ class Buzzer1 {
   bool finished();                          // playing finished
  //======working methods========================================
   void setISR(void (*isr_)(void *pArg));    // interrupt service
+  void setISR32(void (*isr_)());            // interrupt service
   void start();                             // start playing 1x
   void start(int repeat);                   // start, play x times
   void stopp();                             // stopp all playing
   void pause();                             // pause playing
   void goon();                              // start after pause
   void delay(unsigned long waitMillis);     // wait milli secs
+  bool isPlaying();                         // = not finished
  //======help methods===========================================
   void timer_ISR(void *pArg);               // play the notes
   bool parseMelody(String melody);          // notes to dur,freq
@@ -114,5 +129,11 @@ class Buzzer1 {
   int  countNotes(String melody);           // count A..GR,a..gr
   double noteLengthToMS(unsigned int noteLength); // --> millis
   unsigned int noteToFrequency(int note);   // --> frequency
+ //======special helper functions===============================
+ protected:
+  void _noTone();
+  void _tone(int freq_);
+  bool _startTimer(int duration_ms_);
+  void _endTimer();
 };
 #endif

@@ -1,15 +1,17 @@
 //_____D1_class_Buzzer1.cpp______________________khartinger_____
-// The Buzzer1 class for the D1mini is used to output 
-// tones and melodies.
+// The Buzzer1 class for the D1mini or ESP32-D1mini is used to 
+// output tones and melodies.
 // In order not to block the main loop during the sound output,
-// it uses the timer interrupt for sound output.
+// it uses the sound function (for PWM tone frequency) and 
+// timer interrupt (for duration) for sound output.
 // The software is based on a Arduino Melody Player by ericBcreator.
 // https://www.hackster.io/ericBcreator/a-m-p-arduino-music-player-8013b6
 //
 // Hardware: 1. WeMos D1 Mini
 //           2. Buzzer Shield (@ D5)
 // Created by Karl Hartinger, June 06, 2021.
-// Changes: -
+// Changes:
+// 2021-11-22 add ESP32D1mini timer and sound handling
 // Released into the public domain.
 
 #include "D1_class_Buzzer1.h"
@@ -32,7 +34,6 @@ Buzzer1::Buzzer1(int pin) {
 void Buzzer1::setup(int pin)
 {
  pinBuzzer_=pin;                            // set buzzer pin
- pinMode(pinBuzzer_, OUTPUT);               // pin is output
  begin();                                   //init props,objects
 }
 
@@ -40,6 +41,7 @@ void Buzzer1::setup(int pin)
 bool Buzzer1::begin()
 {
  int ret=true;
+ pinMode(pinBuzzer_, OUTPUT);               // pin is output
  //------set properties-----------------------------------------
  pMelf_=NULL;                               // no frequency array
  pMeld_=NULL;                               // no duration array
@@ -53,7 +55,12 @@ bool Buzzer1::begin()
  melr_=1;                                   // first play
  repeat_=1;                                 // play melody 1x
  finished_=true;                            // not playing ;)
- os_timer_disarm(&myTimer);                 // stopp timer
+#if defined(ESP32) || defined(ESP32D1)
+ timer32Num_=TIMER32_NUM;                   // for ESP32 only
+ buzzerChannel_=BUZZER_CHANNEL;             // for ESP32 only
+ ledcAttachPin(pinBuzzer_, buzzerChannel_);
+#endif
+ _endTimer();                               // stopp timer
  restoreSoundSettings();                    // init melody param
  return ret;
 }
@@ -107,10 +114,17 @@ bool Buzzer1::finished() { return finished_; }
 //       working methods
 // *************************************************************
 
+ #if defined(ESP32) || defined(ESP32D1)
+ //_______set name of external interrupt routine_________________
+void Buzzer1::setISR32(void (*fn)(void)) {
+ pISR=fn;
+}
+ #else
 //_______set name of external interrupt routine_________________
 void Buzzer1::setISR(void (*isr_)(void *pArg)) {
  os_timer_setfn(&myTimer, isr_, NULL);
 }
+ #endif
 
 //_______start playing the melody once__________________________
 void Buzzer1::start() { start(1); }
@@ -123,7 +137,7 @@ void Buzzer1::start(int repeat) {
  icurf_=0;                                  // reset melody
  finished_=false;                           // playing not fin.
  restoreSoundSettings();                    // old settings
- os_timer_arm(&myTimer, 1, false);          // start timer
+ _startTimer(1);                            // start timer
 }
 
 //_______stopp playing the melody_______________________________
@@ -136,12 +150,14 @@ void Buzzer1::stopp() {
 
 //_______pause playing the melody_______________________________
 void Buzzer1::pause() { 
- os_timer_disarm(&myTimer);                 // stopp timer
- noTone(pinBuzzer_);                        // sound finished
+ _endTimer();                               // stopp timer
+ _noTone();                                 // sound finished
 }
 
 //_______start melody after pause_______________________________
-void Buzzer1::goon() { os_timer_arm(&myTimer, 1, false); }
+void Buzzer1::goon() { 
+ _startTimer(1);
+}
 
 //_______delay ms (standard delay() does not work)______________
 void Buzzer1::delay(unsigned long waitMillis)
@@ -154,6 +170,9 @@ void Buzzer1::delay(unsigned long waitMillis)
  };
 }
 
+//_______is a melody being played?______________________________
+bool Buzzer1::isPlaying() { return !finished(); }
+
 // *************************************************************
 //       help methods
 // *************************************************************
@@ -161,7 +180,7 @@ void Buzzer1::delay(unsigned long waitMillis)
 //_______timer routine to play a tone___________________________
 void Buzzer1::timer_ISR(void *pArg)
 {
- os_timer_disarm(&myTimer);                 // stopp timer
+ _endTimer();                               // stopp timer
  bool ok=true;                              // this tone is OK
  int d_=0;                                  // duration
  int f_=0;                                  // frequency
@@ -190,14 +209,14 @@ void Buzzer1::timer_ISR(void *pArg)
  if(d_<1) ok=false;                         // no duration
  if(!ok)
  {//-----no melody or number of repetitions reached-------------
-  noTone(pinBuzzer_);                       // sound finished
+  _noTone();                                // sound finished
   finished_=true;                           // playback finished
   return;                                   // finished
  }
  //------output tone--------------------------------------------
- if(f_<1) noTone(pinBuzzer_);               // silence
- else tone(pinBuzzer_,f_);                  // tone
- os_timer_arm(&myTimer, d_, false);         // start timer
+ if(f_<1) _noTone();                        // silence
+ else _tone(f_);                            // tone
+ _startTimer(d_);
 }
 
 //_____convert melody string to frequency and duration__________
@@ -224,6 +243,7 @@ bool Buzzer1::parseMelody(String melody) {
  //----------------count number of notes in melody--------------
  numNotes_=countNotes(melody);
  if(numNotes_<1) return false;
+
  //----------------free old and reserve new memory--------------
  maxmem_=2*numNotes_;
  if(pMelf_!=NULL) free(pMelf_);            // delete old melody
@@ -233,7 +253,6 @@ bool Buzzer1::parseMelody(String melody) {
  imaxf_=0;                                 // start with first..
  imaxd_=0;                                 // f and d index
  restoreSoundSettings();
- Serial.print("numNotes_="); Serial.println(numNotes_);
 
  //----------------for all characters in melody-----------------
  for(unsigned int i=0; i < melody.length(); i++) {
@@ -241,7 +260,7 @@ bool Buzzer1::parseMelody(String melody) {
   curVal = 0;                               // no value
   skip = true;                              // do not write df pair
   f_octaveOffset = 0;                       // no octave offset
-    
+
   //---------------get character, skip blank--------------------
   curChar = melody[i];                      // get character
   if(curChar==' ') continue;                // skip space
@@ -560,4 +579,58 @@ unsigned int Buzzer1::noteToFrequency(int note) {
  };
  if(note>=0 && note <=107) return note2frequency[note];
  return 0;
+}
+
+// *************************************************************
+//       special helper methods
+// *************************************************************
+
+//_______sound finished_________________________________________
+void Buzzer1::_noTone()
+{
+ #if defined(ESP32) || defined(ESP32D1)
+  ledcDetachPin(pinBuzzer_);
+  ledcWrite(buzzerChannel_, 0);             // dutyCycle=0
+ #else
+  noTone(pinBuzzer_);                       // sound finished
+ #endif
+}
+
+//_______start a tone___________________________________________
+void Buzzer1::_tone(int freq_)
+{
+ #if defined(ESP32) || defined(ESP32D1)
+  ledcAttachPin(pinBuzzer_, buzzerChannel_);
+  ledcWriteTone(buzzerChannel_, freq_);
+ #else
+  tone(pinBuzzer_,freq_);                   // tone
+ #endif
+}
+
+//_______start timer____________________________________________
+bool Buzzer1::_startTimer(int duration_ms_)
+{
+ #if defined(ESP32) || defined(ESP32D1)
+  pMyTimer = timerBegin(TIMER32_NUM, TIMER32_PRESCALER, TIMER32_EDGE);
+  if(pMyTimer==NULL) return false;
+  timerAttachInterrupt(pMyTimer, pISR, TIMER32_EDGE);
+  timerAlarmWrite(pMyTimer, duration_ms_*10, true);
+  timerAlarmEnable(pMyTimer);
+  return true;
+ #else
+  os_timer_arm(&myTimer, duration_ms_, false);   // start timer
+  return true;
+ #endif
+}
+
+
+//_______stopp timer____________________________________________
+void Buzzer1::_endTimer()
+{
+ #if defined(ESP32) || defined(ESP32D1)
+  if(pMyTimer != NULL) timerEnd(pMyTimer);  // stopp timer
+  pMyTimer = NULL;                          // no pointer
+ #else
+  os_timer_disarm(&myTimer);                // stopp timer
+ #endif
 }
