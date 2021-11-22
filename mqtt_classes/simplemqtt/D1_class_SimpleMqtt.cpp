@@ -1,8 +1,7 @@
 //_____D1_class_SimpleMqtt.cpp_____________201208-210418_____
 // The SimpleMqtt class is suitable for D1 mini (ESP8266)
-// The SimpleMqtt class is suitable for D1 mini (ESP8266)
-// and ESP32 and extends the classes PubSubClient and
-//  SimpleMqtt to make MQTT easy to use.
+// and ESP32 and extends the class PubSubClient 
+// to make MQTT easy to use.
 // * For this purpose a "base" topic (topicbase, default is
 //   simplemqtt/default) is defined, which can be extended
 //    by the following keywords:
@@ -224,7 +223,7 @@ void SimpleMqtt::setEepromSize(int eepromSize) {
   eepromSize_= eepromSize; 
 }
 
-//_______Maximum Milliseconds to weit for WiFi to be connected__
+//_______Maximum Milliseconds to wait for WiFi to be connected__
 void SimpleMqtt::setWiFiWaitingTime(int ms) 
 { if(ms>=100) wifiWaitMsMax=ms; }
 
