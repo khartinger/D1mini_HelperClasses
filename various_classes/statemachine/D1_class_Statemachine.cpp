@@ -1,4 +1,4 @@
-﻿//_____D1_class_Statemachine.cpp______________181002-200405_____
+﻿//_____D1_class_Statemachine.cpp______________181002-240220_____
 // The class Statemachine helps to build a state counter.
 // It counts from 1 to stateMax (incl.) and waits
 // "stateDelay" milliseconds for every state.
@@ -12,6 +12,7 @@
 // 2020-04-05 add getBeginMillis()
 // 2021-01-31 state: change int to int32_t
 // 2021-04-11 add isDelayed(), delayed (ms)
+// 2024-02-20 replace delay() by while(), add getDelayed()
 // Released into the public domain.
 #include "D1_class_Statemachine.h"
 
@@ -47,7 +48,7 @@ void Statemachine::setup() {
  stateMax=STATE_LAST;
  stateDelay=STATE_DELAY_DEFAULT;
  stateCounter=stateMin;
- beginMillis=millis();
+ millisBegin=millis();
  delayed=0;
 }
 
@@ -103,8 +104,8 @@ int32_t Statemachine::getStateMin()   { return stateMin; }
 int32_t Statemachine::getStateMax()   { return stateMax; }
 int32_t Statemachine::getStateDelay() { return stateDelay; }
 int32_t Statemachine::getState()      { return stateCounter; }
-int32_t Statemachine::getDuration() {return(millis()-beginMillis);}
-uint32_t Statemachine::getBeginMillis(){ return beginMillis; } 
+int32_t Statemachine::getDuration() {return(millis()-millisBegin);}
+uint32_t Statemachine::getBeginMillis(){ return millisBegin; }
 
 //**************************************************************
 //     working methods
@@ -114,7 +115,7 @@ uint32_t Statemachine::getBeginMillis(){ return beginMillis; }
 // returns the number of the actual state
 int32_t Statemachine::loopBegin()
 {
- beginMillis=millis();                 // get start "time"
+ millisBegin=millis();                 // get start "time"
  return stateCounter;
 }
 
@@ -123,21 +124,19 @@ int32_t Statemachine::loopBegin()
 uint32_t Statemachine::loopEnd()
 {
  stateCounter=this->add(1);
- uint32_t endMillis=millis();
+ uint32_t millisEnd=millis();
  uint32_t duration=0xFFFFFFFF;    // -1=0xFFFFFFFF
  //------duration of this state---------------------------------
- if(endMillis>=beginMillis) duration=endMillis-beginMillis;
- else duration=endMillis+(duration-beginMillis);
- uint32_t loopDelay=0;
- if(stateDelay>(duration+delayed))
- {//-----wait a little bit--------------------------------------
-  loopDelay=stateDelay-duration-delayed;
-  delay(loopDelay);                     // wait
-  delayed=0;
- } 
- else 
- {//-----state delayed------------------------------------------
-  delayed+=duration-stateDelay;
+ if(millisEnd>=millisBegin) duration=millisEnd-millisBegin;
+ else duration=millisEnd+(duration-millisBegin);
+ //------wait a little bit if necessary-------------------------
+ if((duration + delayed) > stateDelay)
+ {//-----state machine is delayed: dont wait, prepare next state
+  delayed = duration + delayed - stateDelay;
+ } else
+ {//-----wait a little until the next state can be started------
+  while(millis()-millisEnd < stateDelay) yield();
+  delayed=0;                      // just in time, not delayed
  }
  return duration;
 }
@@ -196,3 +195,6 @@ bool Statemachine::isDelayed() {
  if(delayed==0) return false;
  return true;
 }
+
+//_____how long are the states delayed?_________________________
+uint32_t Statemachine::getDelayed() { return delayed; }

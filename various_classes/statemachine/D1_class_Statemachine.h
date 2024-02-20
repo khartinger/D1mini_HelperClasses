@@ -1,4 +1,4 @@
-﻿//_____D1_class_Statemachine.h________________181002-200405_____
+﻿//_____D1_class_Statemachine.h________________181002-240220_____
 // The class Statemachine helps to build a state counter.
 // It counts from 1 to stateMax (incl.) and waits
 // "stateDelay" milliseconds for every state.
@@ -12,6 +12,7 @@
 // 2020-04-05 add getBeginMillis()
 // 2021-01-31 state: change int to int32_t
 // 2021-04-11 add isDelayed(), delayed (ms)
+// 2024-02-20 replace delay() by while(), add getDelayed()
 // Released into the public domain.
 #ifndef D1_CLASS_STATEMACHINE_H
 #define D1_CLASS_STATEMACHINE_H
@@ -26,8 +27,8 @@ class Statemachine {
   int32_t  stateMin;                   // 1st counter value
   int32_t  stateMax;                   // last vounter value
   uint32_t stateDelay;                 // delay for one state
-  uint32_t beginMillis;                // start time of state
-  uint32_t delayed;                    // state delayed in ms
+  uint32_t millisBegin;                // start time of state
+  uint32_t delayed;                    // state(s) delayed in ms
  public:
   //-----constructor & co---------------------------------------
   Statemachine();                      // use default values
@@ -47,6 +48,7 @@ class Statemachine {
   int32_t  getStateDelay();            //
   int32_t  getState();                 //
   int32_t  getDuration();              //
+  uint32_t getDelayed();               // state(s) delayed in ms
   uint32_t getBeginMillis();           //
   //-----working methods----------------------------------------
   int32_t  loopBegin();                //
