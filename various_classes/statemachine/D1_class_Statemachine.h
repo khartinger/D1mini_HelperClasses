@@ -13,6 +13,7 @@
 // 2021-01-31 state: change int to int32_t
 // 2021-04-11 add isDelayed(), delayed (ms)
 // 2024-02-20 replace delay() by while(), add getDelayed()
+// 2024-02-22 defines STATE_MINIMUM, STATE_NOW, STATE_NONE
 // Released into the public domain.
 #ifndef D1_CLASS_STATEMACHINE_H
 #define D1_CLASS_STATEMACHINE_H
@@ -20,6 +21,10 @@
 #define STATE_ONE                1     // 1st value of state
 #define STATE_LAST              10     // last value of states
 #define STATE_DELAY_DEFAULT    200     // state delay in ms
+#define STATE_MINIMUM   0x80000004     // -2147483644
+#define STATE_NOW       0x80000003     // -2147483645
+#define STATE_NONE      0x80000002     // -2147483646
+
 class Statemachine {
  protected:
   //-----properties---------------------------------------------

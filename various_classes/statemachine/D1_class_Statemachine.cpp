@@ -13,6 +13,7 @@
 // 2021-01-31 state: change int to int32_t
 // 2021-04-11 add isDelayed(), delayed (ms)
 // 2024-02-20 replace delay() by while(), add getDelayed()
+// 2024-02-22 defines STATE_MINIMUM, STATE_NOW, STATE_NONE
 // Released into the public domain.
 #include "D1_class_Statemachine.h"
 
@@ -59,6 +60,7 @@ void Statemachine::setup() {
 //_____set first state (=minimum), if <= state maximum__________
 bool Statemachine::setStateMin(int32_t state_min)
 {
+ if(state_min<STATE_MINIMUM) return false;
  if(state_min<=stateMax){
   stateMin=state_min; 
   if(stateCounter<stateMin) stateCounter=stateMin;
