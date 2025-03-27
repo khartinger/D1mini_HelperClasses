@@ -3,13 +3,18 @@
 // Default i2c address is 0x20 (other options 0x21...0x27).
 // Created by Karl Hartinger, April 06, 2023
 // Updates
+// 2024-06-09 add TwoWire i2c_ property
 //
 // Released into the public domain.
 #include "Arduino.h"              // bool, ...
 #include <Wire.h>                 // i2c bus
 
-#ifndef D1_CLASS_PCF8574_H
-#define D1_CLASS_PCF8574_H
+//#ifndef D1_CLASS_PCF8574_H
+//#define D1_CLASS_PCF8574_H
+#define PIN_SDA               21   // IO21=D2
+#define PIN_SCL               22   // IO22=D1
+#define PIN_SDA2              17   // D3=17 or 33 (default i2c_2)
+#define PIN_SCL2              16   // D4=16 or 32 (default i2c_2)
 #define PCF8574_ADDR          0x20 // 7-bit address
 #define PCF8574_STARTVALUE    0xFF // start byte
 //-----status---------------------------------------------------
@@ -28,6 +33,9 @@
 class PCF8574 {
   //-----properties----------------------------------------------
  protected:
+  int    i2c_num;                 // i2c number (0 or 1)
+  int    pin_sda;                 // data io pin
+  int    pin_scl;                 // clock io pin
   int    i2cAddress;              // i2c address
   int    status;                  // state of i/o action
   bool   invertOutput;            // 
@@ -37,6 +45,8 @@ class PCF8574 {
   PCF8574();                       // default constructor
   PCF8574(int i2c_address);        // constructor with i2c address
   PCF8574(int i2c_address, byte startvalue); // i2c address + start value
+  PCF8574(int i2c_number, int i2c_address, byte startvalue);
+  PCF8574(int i2c_number, int pin_SDA, int pin_SCL, int i2c_address, byte startvalue);
  protected:
   void setup();                   // init properties
   bool checkAddress(int i2c_address); // i2c address 0x20-0x27
@@ -62,4 +72,4 @@ class PCF8574 {
   bool   readIoByte();            // read all 8 io pins
 
 };
-#endif
+//#endif

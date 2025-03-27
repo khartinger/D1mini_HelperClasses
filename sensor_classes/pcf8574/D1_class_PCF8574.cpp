@@ -3,6 +3,7 @@
 // Default i2c address is 0x20 (other options 0x21...0x27).
 // Created by Karl Hartinger, April 06, 2023
 // Updates
+// 2024-06-09 add TwoWire i2c_ property
 //
 // Released into the public domain.
 #include "D1_class_PCF8574.h"
@@ -18,6 +19,7 @@ PCF8574::PCF8574() { i2cAddress=PCF8574_ADDR; setup(); }
 PCF8574::PCF8574(int i2c_address) {
  if(checkAddress(i2c_address)) i2cAddress=i2c_address;
  else i2cAddress=PCF8574_ADDR;
+ i2c_num=0;
  setup();
 }
 
@@ -25,13 +27,41 @@ PCF8574::PCF8574(int i2c_address) {
 PCF8574::PCF8574(int i2c_address, byte startvalue) {
  if(checkAddress(i2c_address)) i2cAddress=i2c_address;
  else i2cAddress=PCF8574_ADDR;
+ i2c_num=0;
  setup();
  ioByte = startvalue;
 }
 
+//_______constructor with i2c number (0|1), address + start byte
+PCF8574::PCF8574(int i2c_number, int i2c_address, byte startvalue) {
+ if(checkAddress(i2c_address)) i2cAddress=i2c_address;
+ else i2cAddress=PCF8574_ADDR;
+ if(i2c_number==1) i2c_num=1; else i2c_num=0;
+ setup();
+ ioByte = startvalue;
+}
+
+//_______constructor with i2c number (0|1), pins, address, start byte
+PCF8574::PCF8574(int i2c_number, int pin_SDA, int pin_SCL, 
+                int i2c_address, byte startvalue) {
+ if(checkAddress(i2c_address)) i2cAddress=i2c_address;
+ else i2cAddress=PCF8574_ADDR;
+ if(i2c_number==1) i2c_num=1; else i2c_num=0;
+ setup();
+ pin_sda = pin_SDA;
+ pin_scl = pin_SCL;
+ ioByte = startvalue;
+}
 
 //_______setup properties_______________________________________
 void PCF8574::setup() {
+ if(i2c_num==1) {
+  pin_sda = PIN_SDA2;
+  pin_scl = PIN_SCL2;
+ } else {
+  pin_sda = PIN_SDA;
+  pin_scl = PIN_SCL;
+ }
  invertOutput = false;
  ioByte = PCF8574_STARTVALUE;
 }
@@ -187,7 +217,11 @@ bool PCF8574::begin() { return begin(true); }
 bool PCF8574::begin(bool startI2C) {
  //------start I2C?---------------------------------------------
  if(startI2C) {
-  Wire.begin();                   // call Wire.begin only once
+  if(i2c_num==0) {
+   Wire.begin();                   // call Wire.begin only once
+  } else {
+   Wire1.begin(pin_sda, pin_scl);
+  }
  }
  //------write start value--------------------------------------
  if(!writeIoByte()) return false;
@@ -204,9 +238,15 @@ bool PCF8574::begin(bool startI2C) {
 bool PCF8574::writeIoByte() {
  byte out_=ioByte;
  if(invertOutput) out_=~out_;
- Wire.beginTransmission(i2cAddress);
- Wire.write(out_);
- status=Wire.endTransmission();
+ if(i2c_num==0) {
+  Wire.beginTransmission(i2cAddress);
+  Wire.write(out_);
+  status=Wire.endTransmission();
+ } else {
+  Wire1.beginTransmission(i2cAddress);
+  Wire1.write(out_);
+  status=Wire1.endTransmission();
+ }
  if(status!=PCF8574_OK) return false;
  return true;
 }
@@ -214,19 +254,34 @@ bool PCF8574::writeIoByte() {
 //_______i2c: read io byte______________________________________
 // return: true=byte read, false on error
 bool PCF8574::readIoByte() {
- int num=Wire.requestFrom(i2cAddress, 1);
- if(num==0) {status=PCF8574_ERR_NO_BYTE; return false;};
- num=Wire.available();
- if(num==0) {status=PCF8574_ERR_NO_BYTE; return false;};
- if(num!=1) 
- {
-  Wire.endTransmission();
-  status=PCF8574_ERR_NUM_BYTES;
-  return false;
+ int num;
+ byte in_;
+ if(i2c_num==0) {
+  num=Wire.requestFrom(i2cAddress, 1);
+  if(num==0) {status=PCF8574_ERR_NO_BYTE; return false;};
+  num=Wire.available();
+  if(num==0) {status=PCF8574_ERR_NO_BYTE; return false;};
+  if(num!=1) 
+  {
+   Wire.endTransmission();
+   status=PCF8574_ERR_NUM_BYTES;
+   return false;
+  }
+  in_=Wire.read();
+ } else {
+  num=Wire1.requestFrom(i2cAddress, 1);
+  if(num==0) {status=PCF8574_ERR_NO_BYTE; return false;};
+  num=Wire1.available();
+  if(num==0) {status=PCF8574_ERR_NO_BYTE; return false;};
+  if(num!=1) 
+  {
+   Wire1.endTransmission();
+   status=PCF8574_ERR_NUM_BYTES;
+   return false;
+  }
+  in_=Wire1.read();
  }
- byte in_=Wire.read();
  status=PCF8574_OK;
- //status=Wire.endTransmission();
  if(invertOutput) in_=~in_;
  ioByte=in_;
  return true;

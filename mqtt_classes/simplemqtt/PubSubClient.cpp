@@ -128,12 +128,12 @@ boolean PubSubClient::connect(const char *id, const char *user, const char *pass
 
         } else {
 
-Serial.print("IP=");Serial.print(this->ip);
-Serial.print(", port=");Serial.println(this->port);
+//Serial.print("IP=");Serial.print(this->ip);
+//Serial.print(", port=");Serial.println(this->port);
             result = _client->connect(this->ip, this->port);
         }
-Serial.print("PubSubClient::connect(): result=");
-Serial.println(result);
+//Serial.print("PubSubClient::connect(): result=");
+//Serial.println(result);
 
         if (result == 1) {
             nextMsgId = 1;

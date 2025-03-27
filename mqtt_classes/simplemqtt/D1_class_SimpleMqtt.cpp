@@ -1,7 +1,8 @@
 //_____D1_class_SimpleMqtt.cpp_____________201208-210418_____
 // The SimpleMqtt class is suitable for D1 mini (ESP8266)
-// and ESP32 and extends the class PubSubClient 
-// to make MQTT easy to use.
+// The SimpleMqtt class is suitable for D1 mini (ESP8266)
+// and ESP32 and extends the classes PubSubClient and
+//  SimpleMqtt to make MQTT easy to use.
 // * For this purpose a "base" topic (topicbase, default is
 //   simplemqtt/default) is defined, which can be extended
 //    by the following keywords:
@@ -57,6 +58,7 @@
 // 2021-01-10 TOPIC_MAX changed to 16
 // 2021-04-18 add virtual to doLoop(), getsLocalIP(), 
 //            constructor 6+7, replace delay(), set hostname
+// 2025-03-24 add sTopicbase=... in setTopicBase()
 // Released into the public domain.
 
 #include "D1_class_SimpleMqtt.h"
@@ -223,7 +225,7 @@ void SimpleMqtt::setEepromSize(int eepromSize) {
   eepromSize_= eepromSize; 
 }
 
-//_______Maximum Milliseconds to wait for WiFi to be connected__
+//_______Maximum Milliseconds to weit for WiFi to be connected__
 void SimpleMqtt::setWiFiWaitingTime(int ms) 
 { if(ms>=100) wifiWaitMsMax=ms; }
 
@@ -326,11 +328,15 @@ int SimpleMqtt::setTopicBase(String topicBasis)
   {//....write to eeprom ok.....................................
    int iResult;
    String s1=eepromReadTopicBase(iResult);
+   if(s1==topicBasis) sTopicBase=topicBasis; // NEW 2025-03-24
    if(iResult<0) ret|=8;               // eeprom read error
   }
   else ret|=4;                         // eeprom write error
  }
- else ret|=1;                          // don't use eeprom
+ else {
+  sTopicBase=topicBasis;               // NEW 2025-03-24
+  ret|=1;                              // don't use eeprom
+ }
  if(DEBUG_MQTT) Serial.printf("setTopicBase(): %s ",topicBasis.c_str());
  if(DEBUG_MQTT) {if(ret>0) Serial.printf("failed! ret=%d\n",ret); else Serial.println("OK");} 
  return ret;

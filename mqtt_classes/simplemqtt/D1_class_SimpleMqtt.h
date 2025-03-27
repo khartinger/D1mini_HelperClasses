@@ -57,6 +57,8 @@
 // 2021-01-10 TOPIC_MAX changed to 16
 // 2021-04-18 add virtual to doLoop(), getsLocalIP(), 
 //            constructor 6+7, replace delay(), set hostname
+// 2024-06-16 TOPIC_MAX set from 32 to 48
+// 2025-03-24 add sTopicbase=... in setTopicBase()
 // Released into the public domain.
 
 #ifndef D1_CLASS_SIMPLEMQTT_H
@@ -92,7 +94,7 @@ void   simpleSub(String sTopic, String sPayload);
 #define MQTT_PORT    1883              // default mqtt port
 #define NO_IP        "xxx.xxx.xxx.xxx" // 
 
-#define  TOPIC_MAX                  16 // max. topics to sub
+#define  TOPIC_MAX                  48 // max. topics to sub
 #define  NOTHING_TODO                0 // # mqtt do nothing
 #define  MQTT_RECONNECT_MS         200 //
 #define  TIMEOUT_WIFI_CONNECT_MS  8000 // wait for WLAN
