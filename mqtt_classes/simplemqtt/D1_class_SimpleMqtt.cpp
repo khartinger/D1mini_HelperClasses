@@ -58,7 +58,7 @@
 // 2021-01-10 TOPIC_MAX changed to 16
 // 2021-04-18 add virtual to doLoop(), getsLocalIP(), 
 //            constructor 6+7, replace delay(), set hostname
-// 2025-03-24 add sTopicbase=... in setTopicBase()
+// 2026-01-10 add setWlanData()
 // Released into the public domain.
 
 #include "D1_class_SimpleMqtt.h"
@@ -233,6 +233,14 @@ void SimpleMqtt::setWiFiWaitingTime(int ms)
 void SimpleMqtt::setWiFiConnectingCounter(int number)
 { if(number>0) wifiConnectingCounterMax=number; }
 
+//_____set WLAN data__________________________________________
+void SimpleMqtt::setWlanData(String sssid, String spwd, 
+     String smqtt_server) {
+ this->ssid_=sssid;
+ this->pass_=spwd;
+ this->mqtt_=smqtt_server;
+}
+
   //_____allow/forbit sending mqtt start info___________________
 void SimpleMqtt::allowMQTTStartInfo(bool allow)
 { startinfo_allow=allow; }
@@ -273,6 +281,9 @@ String SimpleMqtt::getsState()
 
 //_______client name of WiFi network____________________________
 String SimpleMqtt::getsSSID() { return ssid_; }
+
+//_______name of mqtt server____________________________________
+String SimpleMqtt::getsMqttServer() { return mqtt_; }
 
 //_______read client IP address, return it as string____________
 String SimpleMqtt::getsLocalIP() {
@@ -328,15 +339,11 @@ int SimpleMqtt::setTopicBase(String topicBasis)
   {//....write to eeprom ok.....................................
    int iResult;
    String s1=eepromReadTopicBase(iResult);
-   if(s1==topicBasis) sTopicBase=topicBasis; // NEW 2025-03-24
    if(iResult<0) ret|=8;               // eeprom read error
   }
   else ret|=4;                         // eeprom write error
  }
- else {
-  sTopicBase=topicBasis;               // NEW 2025-03-24
-  ret|=1;                              // don't use eeprom
- }
+ else ret|=1;                          // don't use eeprom
  if(DEBUG_MQTT) Serial.printf("setTopicBase(): %s ",topicBasis.c_str());
  if(DEBUG_MQTT) {if(ret>0) Serial.printf("failed! ret=%d\n",ret); else Serial.println("OK");} 
  return ret;

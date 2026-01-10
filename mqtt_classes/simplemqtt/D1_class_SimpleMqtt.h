@@ -58,7 +58,7 @@
 // 2021-04-18 add virtual to doLoop(), getsLocalIP(), 
 //            constructor 6+7, replace delay(), set hostname
 // 2024-06-16 TOPIC_MAX set from 32 to 48
-// 2025-03-24 add sTopicbase=... in setTopicBase()
+// 2026-01-10 add setWlanData
 // Released into the public domain.
 
 #ifndef D1_CLASS_SIMPLEMQTT_H
@@ -190,16 +190,19 @@ class SimpleMqtt : public PubSubClient {
   void   setWiFiConnectingCounter(int number);
   //_____set MQTT client name___________________________________
   void   setMQTTClientName(String sName) {sMQTTClientName=sName;};
+  //_____set WLAN data__________________________________________
+  void   setWlanData(String sssid, String spwd, String smqtt_server);
   //_____allow/forbit sending mqtt start info___________________
   void   allowMQTTStartInfo(bool allow);
-
   //_____get MQTT client name___________________________________
   String getMQTTClientName() { return sMQTTClientName; };
   //_____get MQTT client state as string________________________
   String getsState();
   //_____client name of WiFi network____________________________
   String getsSSID();
-    //_____read client IP address, return it as string____________
+  //_______name of mqtt server__________________________________
+  String getsMqttServer();
+  //_____read client IP address, return it as string____________
   virtual String getsLocalIP();
   //_____return stored client IP as string______________________
   String getsMyIP();
