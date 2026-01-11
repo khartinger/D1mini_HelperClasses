@@ -58,7 +58,7 @@
 // 2021-01-10 TOPIC_MAX changed to 16
 // 2021-04-18 add virtual to doLoop(), getsLocalIP(), 
 //            constructor 6+7, replace delay(), set hostname
-// 2026-01-10 add setWlanData()
+// 2026-01-11 add setWlanData(), eepromBegin()
 // Released into the public domain.
 
 #include "D1_class_SimpleMqtt.h"
@@ -1375,6 +1375,16 @@ void SimpleMqtt::createGetAnswer()
 // *************************************************************
 //     methods for eeprom read/write
 // *************************************************************
+
+//_____eeprom begin___________________________________________
+bool SimpleMqtt::eepromBegin() {
+ bool bRet=false;
+  if (!eepromInitialized) {
+  bRet=EEPROM.begin(eepromSize_);
+  eepromInitialized=true;
+ }
+ return bRet;
+}
 
 //_______eeprom return value as string__________________________
 // iResult >=0: OK (length),

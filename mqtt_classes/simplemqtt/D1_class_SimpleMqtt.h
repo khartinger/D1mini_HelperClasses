@@ -58,7 +58,7 @@
 // 2021-04-18 add virtual to doLoop(), getsLocalIP(), 
 //            constructor 6+7, replace delay(), set hostname
 // 2024-06-16 TOPIC_MAX set from 32 to 48
-// 2026-01-10 add setWlanData
+// 2026-01-11 add setWlanData, eepromBegin()
 // Released into the public domain.
 
 #ifndef D1_CLASS_SIMPLEMQTT_H
@@ -135,7 +135,8 @@ class SimpleMqtt : public PubSubClient {
   bool   startinfo_allow;              // send mqtt start info
   unsigned long conState;              // connection state
   EEPROMClass *eeprom_;                // new EEPROMClass;
-  unsigned long eepromSize_;           // 
+  unsigned long eepromSize_;           // EEPROM size (256|512)
+  bool eepromInitialized;              // EEPROM.begin() done?
   unsigned long iGet;                  // mask for get topics
   unsigned long iSet;                  // mask for set topics
   unsigned long iRet;                  // mask for ret topics
@@ -343,6 +344,8 @@ class SimpleMqtt : public PubSubClient {
   void   createGetAnswer();
 
  //------methods for eeprom read/write--------------------------
+  //_____eeprom begin___________________________________________
+  bool   eepromBegin();
   //_____eeprom return value as string__________________________
   String getsEepromStatus(int iResult);
   //_____write topic to eeprom as topicBase_____________________
